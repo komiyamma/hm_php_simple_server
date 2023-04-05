@@ -1,0 +1,6 @@
+G:\bbbb\HmPHPSimpleDaemon\HmPHPSimpleDaemon\bin\Release\HmPHPSimpleDaemon.dll
+G:\bbbb\HmPHPSimpleDaemon\HmPHPSimpleDaemon\bin\Release\HmPHPSimpleDaemon.pdb
+G:\bbbb\HmPHPSimpleDaemon\HmPHPSimpleDaemon\obj\Release\HmPHPSimpleDaemon.csproj.AssemblyReference.cache
+G:\bbbb\HmPHPSimpleDaemon\HmPHPSimpleDaemon\obj\Release\HmPHPSimpleDaemon.csproj.CoreCompileInputs.cache
+G:\bbbb\HmPHPSimpleDaemon\HmPHPSimpleDaemon\obj\Release\HmPHPSimpleDaemon.dll
+G:\bbbb\HmPHPSimpleDaemon\HmPHPSimpleDaemon\obj\Release\HmPHPSimpleDaemon.pdb

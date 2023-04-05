@@ -1,0 +1,26 @@
+﻿$PHP_FULLPATH = @"C:\usr\php\php.exe";
+$PHP_HOSTNAME = @"127.0.0.1";
+
+#NODE_OBJ = createobject( currentmacrodirectory + @"\HmPHPSimpleDaemon.dll", "HmPHPSimpleDaemon.HmPHPSimpleDaemon");
+keepobject #NODE_OBJ, 1;
+setcomdetachmethod #NODE_OBJ, "OnReleaseObject";
+
+ // 全秀丸共有で#PHP_HOSTPORTを持つ。１つずつインクリメントで全秀丸でかぶらないようにする
+$STR_PORT = getstaticvariable("HmPHPSimpleDaemonLastPort", 1);
+if ($STR_PORT == "") {
+    #PHP_HOSTPORT = 50001;
+    setstaticvariable "HmPHPSimpleDaemonLastPort", str(#PHP_HOSTPORT), 1;
+} else {
+    #PHP_HOSTPORT = val($STR_PORT);
+    #PHP_HOSTPORT = #PHP_HOSTPORT + 1;
+    if (#PHP_HOSTPORT > 60000) {
+        #PHP_HOSTPORT = 50001;
+    }
+    setstaticvariable "HmPHPSimpleDaemonLastPort", str(#PHP_HOSTPORT), 1;
+}    
+
+
+#_ = member(#NODE_OBJ, "Launch", $PHP_FULLPATH, $PHP_HOSTNAME, #PHP_HOSTPORT);
+
+showbrowserpane 1, 2;
+setbrowserpaneurl "http://" + $PHP_HOSTNAME + ":" + str(#PHP_HOSTPORT) + "/" + basename2, 2;
