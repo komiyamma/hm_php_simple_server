@@ -1,0 +1,6 @@
+G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\bin\Debug\HmPHPSimpleDaemon.dll
+G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\bin\Debug\HmPHPSimpleDaemon.pdb
+G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\obj\Debug\HmPHPSimpleDaemon.csproj.AssemblyReference.cache
+G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\obj\Debug\HmPHPSimpleDaemon.csproj.CoreCompileInputs.cache
+G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\obj\Debug\HmPHPSimpleDaemon.dll
+G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\obj\Debug\HmPHPSimpleDaemon.pdb

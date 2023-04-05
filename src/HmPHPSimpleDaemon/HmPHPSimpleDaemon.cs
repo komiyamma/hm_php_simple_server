@@ -14,7 +14,8 @@ namespace HmPHPSimpleDaemon
         int hostPort;
         string hostName;
 
-        public long Launch(string phpExePath, string hostName, int hostPort)
+
+        public string Launch(string phpExePath, string hostName, int hostPort)
         {
             try
             {
@@ -28,15 +29,36 @@ namespace HmPHPSimpleDaemon
                 ProcessStartInfo psi = proc.StartInfo;
                 psi.FileName = phpExePath;
                 psi.Arguments = $" -S {this.hostName}:{this.hostPort} -t \"{this.workingDirectory}\" ";
+
+                psi.UseShellExecute = false;
+                psi.CreateNoWindow = true;
+                psi.RedirectStandardOutput = true;
+                psi.RedirectStandardError = true;
+                psi.WindowStyle = ProcessWindowStyle.Hidden;
+                proc.OutputDataReceived += Proc_OutputDataReceived;
+
+
                 proc.Start();
-                return 1;
+                string filepath = Hm.Edit.FilePath;
+                if (!String.IsNullOrEmpty(filepath))
+                {
+                    return Path.GetFileName(filepath);
+                }
             }
             catch (Exception e)
             {
                 Hm.OutputPane.Output(e.ToString() + "\r\n");
             }
 
-            return 0;
+            return "";
+        }
+
+        private void Proc_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (!String.IsNullOrEmpty(e.Data))
+            {
+                Hm.OutputPane.Output(e.Data + "\r\n");
+            }
         }
 
         private void SetWorkingDirectory()
@@ -60,7 +82,7 @@ namespace HmPHPSimpleDaemon
             Destroy();
         }
 
-        private static long Destroy()
+        private long Destroy()
         {
             try
             {
@@ -75,6 +97,7 @@ namespace HmPHPSimpleDaemon
             {
 
             }
+
 
             return 0;
         }
