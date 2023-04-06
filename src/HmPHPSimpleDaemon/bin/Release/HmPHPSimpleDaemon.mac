@@ -1,5 +1,4 @@
 ﻿if (filename2 == "") {
-    message "ファイル名が付いていません";
     endmacro;
 }
 

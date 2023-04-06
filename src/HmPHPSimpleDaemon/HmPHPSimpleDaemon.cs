@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using HmNetCOM;
 
 namespace HmPHPSimpleDaemon
@@ -14,13 +16,18 @@ namespace HmPHPSimpleDaemon
         int hostPort;
         string hostName;
 
+        Task<string> task;
+        CancellationTokenSource cts;
 
+        // PHPデーモンのスタート
         public string Launch(string phpExePath, string hostName, int hostPort)
         {
             try
             {
                 this.hostName = hostName;
                 this.hostPort = hostPort;
+
+                currMacroFilePath = (String)Hm.Macro.Var["currentmacrofilename"];
                 Destroy();
 
                 SetWorkingDirectory();
@@ -39,7 +46,15 @@ namespace HmPHPSimpleDaemon
 
 
                 proc.Start();
+
+                cts = new CancellationTokenSource();
+                CancellationToken ct = cts.Token;
+                task = Task.Run(() => {
+                    return TickMethodAsync(ct);
+                }, ct);
+
                 string filepath = Hm.Edit.FilePath;
+                prevFileFullPath = filepath;
                 if (!String.IsNullOrEmpty(filepath))
                 {
                     return Path.GetFileName(filepath);
@@ -51,6 +66,51 @@ namespace HmPHPSimpleDaemon
             }
 
             return "";
+        }
+
+        string prevFileFullPath = null;
+        string currMacroFilePath = "";
+
+        // ファイル名が変化したことを検知したら、自分自身を実行する。
+        private async Task<string> TickMethodAsync(CancellationToken ct)
+        {
+            for (int i = 0; i < 5; i++) {
+                ct.ThrowIfCancellationRequested();
+            }
+
+            while (true)
+            {
+                await DelayMethod(ct);
+
+                string currFileFullPath = Hm.Edit.FilePath;
+                // ファイル名が変化したら、改めて自分自身のマクロを実行する。
+                if (prevFileFullPath != currFileFullPath)
+                {
+                    prevFileFullPath = currFileFullPath;
+
+                    // 同期マクロ実行中ではない
+                    if (!Hm.Macro.IsExecuting && !String.IsNullOrEmpty(currFileFullPath))
+                    {
+                        Hm.OutputPane.Output(currMacroFilePath + "\r\n");
+                        // 自分自身を実行
+                        Hm.Macro.Exec.File(currMacroFilePath);
+
+                    }
+                }
+
+            }
+        }
+
+        private static async Task<CancellationToken> DelayMethod(CancellationToken ct)
+        {
+            await Task.Delay(100);
+            if (ct.IsCancellationRequested)
+            {
+                // Clean up here, then...
+                ct.ThrowIfCancellationRequested();
+            }
+
+            return ct;
         }
 
         private void Proc_OutputDataReceived(object sender, DataReceivedEventArgs e)
@@ -86,6 +146,10 @@ namespace HmPHPSimpleDaemon
         {
             try
             {
+                if (cts != null)
+                {
+                    cts.Cancel();
+                }
                 if (proc != null)
                 {
                     proc.Kill();
