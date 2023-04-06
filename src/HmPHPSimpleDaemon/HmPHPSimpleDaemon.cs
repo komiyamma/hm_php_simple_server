@@ -91,10 +91,8 @@ namespace HmPHPSimpleDaemon
                     // 同期マクロ実行中ではない
                     if (!Hm.Macro.IsExecuting && !String.IsNullOrEmpty(currFileFullPath))
                     {
-                        Hm.OutputPane.Output(currMacroFilePath + "\r\n");
                         // 自分自身を実行
                         Hm.Macro.Exec.File(currMacroFilePath);
-
                     }
                 }
 
