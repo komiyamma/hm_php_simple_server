@@ -4,6 +4,7 @@
  */
 
 PHP_SERVER_SETTING:
+
     // 手元にある php.exe へのフルパスを指定。
     // PCに入っていなければ、「https://windows.php.net/download#php-8.2」の「Zip」とあるものならどれでもOK
     $PHP_FULLPATH = @"C:\usr\php\php.exe";
@@ -14,11 +15,17 @@ PHP_SERVER_SETTING:
 
 
 CLEAR_OLD_PHP_SERVER_OBJECT:
-    #PHP_OBJ_INDEX = 0;
-    while(true) {
-        if (#PHP_OBJ_INDEX > 5) { break; } // まえに起動されていたPHP_SERVER_OBJECTを解放
-        #PHP_OBJ_INDEX = #PHP_OBJ_INDEX + 1;
-        $OBJ_CLASS_NAME = member(#PHP_OBJ_INDEX, "ToString");
+
+    // 「この秀丸プロセス」内でのオブジェクト番号を取り出す
+    $LAST_PHP_OBJ = getstaticvariable("HmPHPSimpleDaemonLastObj", 2);
+
+    // 有効な値があるならば...
+    if ($LAST_PHP_OBJ != "") {
+        #LAST_PHP_OBJ = val($LAST_PHP_OBJ); // 文字列の数字 ⇒ 数値へ
+
+        // 該当の値をToStringして本当に「HmPHPSimpleDaemon」のオブジェクトか確認する。
+        // .NET で制作しているものはすべてのオブジェクトがToStringを持つ、それは「名前空間.クラス名」なのでこのような判定が出来る。
+        $OBJ_CLASS_NAME = member(#LAST_PHP_OBJ, "ToString");
         if ($OBJ_CLASS_NAME == "HmPHPSimpleDaemon.HmPHPSimpleDaemon") {
             releaseobject(#PHP_OBJ_INDEX); // HmPHPSimpleDaemon.HmPHPSimpleDaemon 内の「OnReleaseObject」も実行される。
         }
@@ -31,9 +38,14 @@ UNTITLED_EXIT:
     }
 
 
+
 CREATE_PHP_SERVER_OBJECT:
 
     #PHP_OBJ = createobject( currentmacrodirectory + @"\HmPHPSimpleDaemon.dll", "HmPHPSimpleDaemon.HmPHPSimpleDaemon");
+
+    // 「この秀丸プロセス」内でのオブジェクト番号を記憶しておく
+    setstaticvariable "HmPHPSimpleDaemonLastObj", str(#PHP_OBJ), 2; // 
+
     // マクロが終了してもオブジェクトは維持。シングルトンにするため、マクロの「CLEAR_OLD_PHP_SERVER_OBJECT:」で古い起動は掃除している。
     keepobject #PHP_OBJ, 1;
 
@@ -41,7 +53,9 @@ CREATE_PHP_SERVER_OBJECT:
     setcomdetachmethod #PHP_OBJ, "OnReleaseObject";
 
 
+
 CREATE_PHP_SERVER_UNIQUE_PORT:
+
      // 全秀丸共有で#PHP_HOSTPORTを持つ。１つずつインクリメントで「全秀丸プロセス」でユニークとし、被らないようにする
     $STR_PORT = getstaticvariable("HmPHPSimpleDaemonLastPort", 1);
     if ($STR_PORT == "") {
@@ -59,7 +73,9 @@ CREATE_PHP_SERVER_UNIQUE_PORT:
     $URI = member(#PHP_OBJ, "Launch", $PHP_FULLPATH, $PHP_HOSTNAME, #PHP_HOSTPORT);
 
 
+
 SHOW_BROWSER_PANE_BY_HTTP_URL:
+
     // ブラウザ枠で表示
     showbrowserpane 1, #TARGET_BROWSER_PANE;
     // 対応するポートでPHPサーバーが立っているので、そのURLをブラウザ枠に表示。

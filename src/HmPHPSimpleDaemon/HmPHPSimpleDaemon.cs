@@ -29,8 +29,6 @@ namespace HmPHPSimpleDaemon
         {
             try
             {
-                this.isMustRelease = 0; // 自分自身を開放するべきか？
-
                 this.phpHostName = hostName;
                 this.phpHostPort = hostPort;
 
@@ -139,8 +137,7 @@ namespace HmPHPSimpleDaemon
                     // 同期マクロ実行中ではない
                     if (!Hm.Macro.IsExecuting && !String.IsNullOrEmpty(currFileFullPath))
                     {
-                        // 自分自身は解放するべきである。
-                        this.isMustRelease = 1;
+
                         // 自分自身を実行
                         Hm.Macro.Exec.File(currMacroFilePath);
                     }
@@ -168,15 +165,9 @@ namespace HmPHPSimpleDaemon
             }
         }
 
-        private int isMustRelease;
         public void OnReleaseObject(int reason = 0)
         {
             Destroy();
-        }
-
-        public long IsMustRelease()
-        {
-            return isMustRelease;
         }
 
         private long Destroy()
