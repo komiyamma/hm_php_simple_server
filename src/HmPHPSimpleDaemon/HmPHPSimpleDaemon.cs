@@ -1,4 +1,9 @@
-﻿using System;
+﻿/*
+ * Copyright (c) 2023 Akitsugu Komiyama
+ * under the MIT License
+ */
+
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -11,10 +16,10 @@ namespace HmPHPSimpleDaemon
     [Guid("B4BE82DB-9F1F-423C-BAA3-39AAC146AB44")]
     public class HmPHPSimpleDaemon
     {
-        static Process proc;
-        string workingDirectory;
-        int hostPort;
-        string hostName;
+        static Process phpProcess;
+        string phpServerDocumentFolder;
+        string phpHostName;
+        int phpHostPort;
 
         Task<string> task;
         CancellationTokenSource cts;
@@ -24,41 +29,21 @@ namespace HmPHPSimpleDaemon
         {
             try
             {
-                this.hostName = hostName;
-                this.hostPort = hostPort;
+                this.isMustRelease = 0; // 自分自身を開放するべきか？
+
+                this.phpHostName = hostName;
+                this.phpHostPort = hostPort;
 
                 currMacroFilePath = (String)Hm.Macro.Var["currentmacrofilename"];
                 Destroy();
 
-                SetWorkingDirectory();
+                SetPHPServerDocumentRoot();
 
-                proc = new Process();
-                ProcessStartInfo psi = proc.StartInfo;
-                psi.FileName = phpExePath;
-                psi.Arguments = $" -S {this.hostName}:{this.hostPort} -t \"{this.workingDirectory}\" ";
+                CreatePHPServerProcess(phpExePath);
 
-                psi.UseShellExecute = false;
-                psi.CreateNoWindow = true;
-                psi.RedirectStandardOutput = true;
-                psi.RedirectStandardError = true;
-                psi.WindowStyle = ProcessWindowStyle.Hidden;
-                proc.OutputDataReceived += Proc_OutputDataReceived;
+                CreateTaskMonitoringFilePath();
 
-
-                proc.Start();
-
-                cts = new CancellationTokenSource();
-                CancellationToken ct = cts.Token;
-                task = Task.Run(() => {
-                    return TickMethodAsync(ct);
-                }, ct);
-
-                string filepath = Hm.Edit.FilePath;
-                prevFileFullPath = filepath;
-                if (!String.IsNullOrEmpty(filepath))
-                {
-                    return Path.GetFileName(filepath);
-                }
+                return GetHmEditFileName();
             }
             catch (Exception e)
             {
@@ -68,10 +53,73 @@ namespace HmPHPSimpleDaemon
             return "";
         }
 
+        // 秀丸で編集中ファイル名をモニターするためのタスク生成
+        private void CreateTaskMonitoringFilePath()
+        {
+            cts = new CancellationTokenSource();
+            CancellationToken ct = cts.Token;
+            task = Task.Run(() =>
+            {
+                return TickMethodAsync(ct);
+            }, ct);
+        }
+
+        // 編集中のファイルのパス文字列の「ファイル名と拡張子」を返す。
+        private string GetHmEditFileName()
+        {
+            string filepath = Hm.Edit.FilePath;
+            prevFileFullPath = filepath;
+            if (!String.IsNullOrEmpty(filepath))
+            {
+                return Path.GetFileName(filepath);
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        // PHPプロセス生成
+        private void CreatePHPServerProcess(string phpExePath)
+        {
+            phpProcess = new Process();
+            ProcessStartInfo psi = phpProcess.StartInfo;
+            psi.FileName = phpExePath;
+            psi.Arguments = $" -S {this.phpHostName}:{this.phpHostPort} -t \"{this.phpServerDocumentFolder}\" ";
+
+            psi.UseShellExecute = false;
+            psi.CreateNoWindow = true;
+            psi.RedirectStandardOutput = true;
+            psi.RedirectStandardError = true;
+            psi.WindowStyle = ProcessWindowStyle.Hidden;
+            phpProcess.OutputDataReceived += Proc_OutputDataReceived;
+
+            phpProcess.Start();
+        }
+
+        // PHPが起動する際のドキュメントルート
+        private void SetPHPServerDocumentRoot()
+        {
+            string currFilePath = Hm.Edit.FilePath;
+
+            if (String.IsNullOrWhiteSpace(currFilePath))
+            {
+                return;
+            }
+
+            if (File.Exists(currFilePath))
+            {
+                phpServerDocumentFolder = Path.GetDirectoryName(currFilePath);
+            }
+        }
+
+
+
         string prevFileFullPath = null;
         string currMacroFilePath = "";
 
-        // ファイル名が変化したことを検知したら、自分自身を実行する。
+        // ファイル名が変化したことを検知したら、HmPHPSimpleDaemon.mac(自分の呼び出し元)を改めて実行する。
+        // これによりマクロにより、このクラスのインスタンスがクリアされるとともに、新たなファイル名、新たなポート番号を使って、PHPサーバーが再起動される。
         private async Task<string> TickMethodAsync(CancellationToken ct)
         {
             for (int i = 0; i < 5; i++) {
@@ -91,11 +139,12 @@ namespace HmPHPSimpleDaemon
                     // 同期マクロ実行中ではない
                     if (!Hm.Macro.IsExecuting && !String.IsNullOrEmpty(currFileFullPath))
                     {
+                        // 自分自身は解放するべきである。
+                        this.isMustRelease = 1;
                         // 自分自身を実行
                         Hm.Macro.Exec.File(currMacroFilePath);
                     }
                 }
-
             }
         }
 
@@ -119,25 +168,15 @@ namespace HmPHPSimpleDaemon
             }
         }
 
-        private void SetWorkingDirectory()
-        {
-            if (String.IsNullOrWhiteSpace(workingDirectory))
-            {
-                workingDirectory = Hm.Edit.FilePath ?? "";
-            }
-            string currFilePath = Hm.Edit.FilePath;
-            if (!String.IsNullOrWhiteSpace(currFilePath))
-            {
-                if (File.Exists(currFilePath))
-                {
-                    workingDirectory = Path.GetDirectoryName(currFilePath);
-                }
-            }
-        }
-
+        private int isMustRelease;
         public void OnReleaseObject(int reason = 0)
         {
             Destroy();
+        }
+
+        public long IsMustRelease()
+        {
+            return isMustRelease;
         }
 
         private long Destroy()
@@ -148,9 +187,9 @@ namespace HmPHPSimpleDaemon
                 {
                     cts.Cancel();
                 }
-                if (proc != null)
+                if (phpProcess != null)
                 {
-                    proc.Kill();
+                    phpProcess.Kill();
                 }
 
                 return 1;

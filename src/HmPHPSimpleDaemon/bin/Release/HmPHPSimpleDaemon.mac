@@ -1,29 +1,66 @@
-﻿if (filename2 == "") {
-    endmacro;
-}
+﻿/*
+ * Copyright (c) 2023 Akitsugu Komiyama
+ * under the MIT License
+ */
 
-$PHP_FULLPATH = @"C:\usr\php\php.exe";
-$PHP_HOSTNAME = @"127.0.0.1";
+PHP_SERVER_SETTING:
+    // 手元にある php.exe へのフルパスを指定。
+    // PCに入っていなければ、「https://windows.php.net/download#php-8.2」の「Zip」とあるものならどれでもOK
+    $PHP_FULLPATH = @"C:\usr\php\php.exe";
 
-#NODE_OBJ = createobject( currentmacrodirectory + @"\HmPHPSimpleDaemon.dll", "HmPHPSimpleDaemon.HmPHPSimpleDaemon");
-keepobject #NODE_OBJ, 1;
-setcomdetachmethod #NODE_OBJ, "OnReleaseObject";
+    // localhost に相当するものは、秀丸のURLからjavascript:(～)が実行可能です。
+    $PHP_HOSTNAME = @"127.0.0.1";
+    #TARGET_BROWSER_PANE = 2; // 個別ブラウザ枠:2  共用ブラウザ枠:1
 
- // 全秀丸共有で#PHP_HOSTPORTを持つ。１つずつインクリメントで全秀丸でかぶらないようにする
-$STR_PORT = getstaticvariable("HmPHPSimpleDaemonLastPort", 1);
-if ($STR_PORT == "") {
-    #PHP_HOSTPORT = 50001;
-    setstaticvariable "HmPHPSimpleDaemonLastPort", str(#PHP_HOSTPORT), 1;
-} else {
-    #PHP_HOSTPORT = val($STR_PORT);
-    #PHP_HOSTPORT = #PHP_HOSTPORT + 1;
-    if (#PHP_HOSTPORT > 60000) {
-        #PHP_HOSTPORT = 50001;
+
+CLEAR_OLD_PHP_SERVER_OBJECT:
+    #PHP_OBJ_INDEX = 0;
+    while(true) {
+        if (#PHP_OBJ_INDEX > 5) { break; } // まえに起動されていたPHP_SERVER_OBJECTを解放
+        #PHP_OBJ_INDEX = #PHP_OBJ_INDEX + 1;
+        $OBJ_CLASS_NAME = member(#PHP_OBJ_INDEX, "ToString");
+        if ($OBJ_CLASS_NAME == "HmPHPSimpleDaemon.HmPHPSimpleDaemon") {
+            releaseobject(#PHP_OBJ_INDEX); // HmPHPSimpleDaemon.HmPHPSimpleDaemon 内の「OnReleaseObject」も実行される。
+        }
     }
-    setstaticvariable "HmPHPSimpleDaemonLastPort", str(#PHP_HOSTPORT), 1;
-}
 
-$filename = member(#NODE_OBJ, "Launch", $PHP_FULLPATH, $PHP_HOSTNAME, #PHP_HOSTPORT);
 
-showbrowserpane 1, 2;
-setbrowserpaneurl "http://" + $PHP_HOSTNAME + ":" + str(#PHP_HOSTPORT) + "/" + $filename, 2;
+UNTITLED_EXIT:
+    if (filename2 == "") {
+        endmacro;
+    }
+
+
+CREATE_PHP_SERVER_OBJECT:
+
+    #PHP_OBJ = createobject( currentmacrodirectory + @"\HmPHPSimpleDaemon.dll", "HmPHPSimpleDaemon.HmPHPSimpleDaemon");
+    // マクロが終了してもオブジェクトは維持。シングルトンにするため、マクロの「CLEAR_OLD_PHP_SERVER_OBJECT:」で古い起動は掃除している。
+    keepobject #PHP_OBJ, 1;
+
+    // 掃除される際(releaseobjectやプロセスを閉じた、何か秀丸レベルで致命的マクロエラーとなった際)に呼び出される
+    setcomdetachmethod #PHP_OBJ, "OnReleaseObject";
+
+
+CREATE_PHP_SERVER_UNIQUE_PORT:
+     // 全秀丸共有で#PHP_HOSTPORTを持つ。１つずつインクリメントで「全秀丸プロセス」でユニークとし、被らないようにする
+    $STR_PORT = getstaticvariable("HmPHPSimpleDaemonLastPort", 1);
+    if ($STR_PORT == "") {
+        #PHP_HOSTPORT = 50001;
+        setstaticvariable "HmPHPSimpleDaemonLastPort", str(#PHP_HOSTPORT), 1;
+    } else {
+        #PHP_HOSTPORT = val($STR_PORT);
+        #PHP_HOSTPORT = #PHP_HOSTPORT + 1;
+        if (#PHP_HOSTPORT > 60000) {
+            #PHP_HOSTPORT = 50001;
+        }
+        setstaticvariable "HmPHPSimpleDaemonLastPort", str(#PHP_HOSTPORT), 1;
+    }
+
+    $URI = member(#PHP_OBJ, "Launch", $PHP_FULLPATH, $PHP_HOSTNAME, #PHP_HOSTPORT);
+
+
+SHOW_BROWSER_PANE_BY_HTTP_URL:
+    // ブラウザ枠で表示
+    showbrowserpane 1, #TARGET_BROWSER_PANE;
+    // 対応するポートでPHPサーバーが立っているので、そのURLをブラウザ枠に表示。
+    setbrowserpaneurl "http://" + $PHP_HOSTNAME + ":" + str(#PHP_HOSTPORT) + "/" + $URI, #TARGET_BROWSER_PANE;
