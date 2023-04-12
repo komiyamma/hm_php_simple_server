@@ -3,6 +3,8 @@
  * under the MIT License
  */
 
+
+
 PHP_SERVER_SETTING:
 
     // 手元にある php.exe へのフルパスを指定。
@@ -10,7 +12,7 @@ PHP_SERVER_SETTING:
     $PHP_FULLPATH = @"C:\usr\php\php.exe";
 
     // localhost に相当するものは、秀丸のURLからjavascript:(～)が実行可能です。
-    $PHP_HOSTNAME = @"127.0.0.1";
+    $PHP_HOSTNAME = @"localhost";
     #TARGET_BROWSER_PANE = 2; // 個別ブラウザ枠:2  共用ブラウザ枠:1
 
 
