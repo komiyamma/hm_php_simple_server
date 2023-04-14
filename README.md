@@ -1,7 +1,7 @@
 # hm_php_simple_daemon
 秀丸エディタ - ブラウザ枠用 - 簡易デーモン
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/kzg6j6lnc_Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+https://www.youtube.com/embed/kzg6j6lnc_Q
 
 ## PHP配備 (すでにPCにPHP配置してある人はスキップ)
 https://windows.php.net/download#php-8.2
