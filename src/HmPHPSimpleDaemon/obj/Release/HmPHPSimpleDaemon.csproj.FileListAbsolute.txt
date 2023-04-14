@@ -5,8 +5,6 @@ G:\bbbb\HmPHPSimpleDaemon\HmPHPSimpleDaemon\obj\Release\HmPHPSimpleDaemon.csproj
 G:\bbbb\HmPHPSimpleDaemon\HmPHPSimpleDaemon\obj\Release\HmPHPSimpleDaemon.dll
 G:\bbbb\HmPHPSimpleDaemon\HmPHPSimpleDaemon\obj\Release\HmPHPSimpleDaemon.pdb
 G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\bin\Release\HmPHPSimpleDaemon.dll
-G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\bin\Release\HmPHPSimpleDaemon.pdb
 G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\obj\Release\HmPHPSimpleDaemon.csproj.AssemblyReference.cache
 G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\obj\Release\HmPHPSimpleDaemon.csproj.CoreCompileInputs.cache
 G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\obj\Release\HmPHPSimpleDaemon.dll
-G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\obj\Release\HmPHPSimpleDaemon.pdb
