@@ -25,7 +25,7 @@ namespace HmPHPSimpleDaemon
         CancellationTokenSource cts;
 
         // PHPデーモンのスタート
-        public string Launch(string phpExePath, string hostName, int hostPort)
+        public string Launch(string phpExePath, string hostName, int hostPort, string parentDocumentRoot)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace HmPHPSimpleDaemon
                 currMacroFilePath = (String)Hm.Macro.Var["currentmacrofilename"];
                 Destroy();
 
-                SetPHPServerDocumentRoot();
+                SetPHPServerDocumentRoot(parentDocumentRoot);
 
                 CreatePHPServerProcess(phpExePath);
 
@@ -69,7 +69,28 @@ namespace HmPHPSimpleDaemon
             prevFileFullPath = filepath;
             if (!String.IsNullOrEmpty(filepath))
             {
-                return Path.GetFileName(filepath);
+                var dir = Path.GetDirectoryName(filepath);
+                if (dir == phpServerDocumentFolder)
+                {
+                    return Path.GetFileName(filepath);
+                } else
+                {
+                    var uriCurrentEditFilePath = new Uri(filepath).ToString();
+                    var uriPhpDocumentRoot = new Uri(phpServerDocumentFolder).ToString();
+                    string relative = uriCurrentEditFilePath.Replace(uriPhpDocumentRoot, "");
+                    // 置き換えが発生しなかったということは、親子関係のパスになっていない。
+                    if (relative == uriCurrentEditFilePath)
+                    {
+                        string message = $"指定されたサーバーのドキュメントルート「{uriPhpDocumentRoot}」からでは、「{uriCurrentEditFilePath}」は閲覧出来ない可能性が高いです。";
+                        Hm.OutputPane.Output(message + "\r\n");
+                    }
+                    // relativeパスの先頭の/は消す
+                    if (relative.Length > 0 && relative[0] == '/')
+                    {
+                        relative = relative.Substring(1);
+                    }
+                    return relative.ToString();
+                }
             }
             else
             {
@@ -96,22 +117,29 @@ namespace HmPHPSimpleDaemon
         }
 
         // PHPが起動する際のドキュメントルート
-        private void SetPHPServerDocumentRoot()
+        private void SetPHPServerDocumentRoot(string parentDocumentRoot)
         {
-            string currFilePath = Hm.Edit.FilePath;
-
-            if (String.IsNullOrWhiteSpace(currFilePath))
+            if (String.IsNullOrEmpty(parentDocumentRoot))
             {
-                return;
-            }
+                string currFilePath = Hm.Edit.FilePath;
 
-            if (File.Exists(currFilePath))
+                if (String.IsNullOrWhiteSpace(currFilePath))
+                {
+                    return;
+                }
+
+                if (File.Exists(currFilePath))
+                {
+                    phpServerDocumentFolder = Path.GetDirectoryName(currFilePath);
+                }
+            } else
             {
-                phpServerDocumentFolder = Path.GetDirectoryName(currFilePath);
+                if (Directory.Exists(parentDocumentRoot))
+                {
+                    phpServerDocumentFolder = parentDocumentRoot;
+                }
             }
         }
-
-
 
         string prevFileFullPath = null;
         string currMacroFilePath = "";
@@ -120,7 +148,8 @@ namespace HmPHPSimpleDaemon
         // これによりマクロにより、このクラスのインスタンスがクリアされるとともに、新たなファイル名、新たなポート番号を使って、PHPサーバーが再起動される。
         private async Task<string> TickMethodAsync(CancellationToken ct)
         {
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 5; i++)
+            {
                 ct.ThrowIfCancellationRequested();
             }
 
