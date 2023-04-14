@@ -219,7 +219,7 @@ namespace HmPHPSimpleDaemon
                     if (!Hm.Macro.IsExecuting && !String.IsNullOrEmpty(currFileFullPath))
                     {
 
-                        // 自分自身を実行
+                        // リフレッシュする
                         Hm.Macro.Exec.Eval($"refreshbrowserpane {targetBrowserPane};");
                     }
                 }
