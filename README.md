@@ -10,7 +10,7 @@
 
 ## PHP配備 (すでにPCにPHP配置してある人はスキップ)
 https://windows.php.net/download#php-8.2
-のzip を適当に好きなのダウンロード。
+のzip を適当に好きなのダウンロード。  
 zip ファイルを展開し適当な位置に配備
 
 
