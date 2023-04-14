@@ -64,7 +64,7 @@ namespace HmPHPSimpleDaemon
             if (!String.IsNullOrEmpty(filepath))
             {
                 var directory = Path.GetDirectoryName(filepath);
-                var filename = Path.GetFileName(filepath); 
+                var filename = Path.GetFileName(filepath);
                 watcher = new System.IO.FileSystemWatcher(directory, filename);
 
                 //監視するフィールドの設定
@@ -79,11 +79,20 @@ namespace HmPHPSimpleDaemon
             }
         }
 
+        private void DestroyFileWatcher()
+        {
+            if (watcher != null)
+            {
+                watcher.Dispose();
+            }
+        }
+
         bool isMustReflesh = false;
 
         private void watcher_Changed(object sender, FileSystemEventArgs e)
         {
-            if (!Hm.Macro.IsExecuting) {
+            if (!Hm.Macro.IsExecuting)
+            {
                 isMustReflesh = true;
             }
         }
@@ -255,10 +264,25 @@ namespace HmPHPSimpleDaemon
         {
             try
             {
+                DestroyFileWatcher();
+            }
+            catch (Exception)
+            {
+
+            }
+            try
+            {
                 if (cts != null)
                 {
                     cts.Cancel();
                 }
+            }
+            catch (Exception)
+            {
+
+            }
+            try
+            {
                 if (phpProcess != null)
                 {
                     phpProcess.Kill();
