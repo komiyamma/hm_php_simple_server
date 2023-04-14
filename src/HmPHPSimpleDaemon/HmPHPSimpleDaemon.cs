@@ -24,13 +24,18 @@ namespace HmPHPSimpleDaemon
         Task<string> task;
         CancellationTokenSource cts;
 
+        System.IO.FileSystemWatcher watcher;
+        int targetBrowserPane = 2;
+
         // PHPデーモンのスタート
         public string Launch(string phpExePath, string hostName, int hostPort, string parentDocumentRoot)
         {
             try
             {
+                this.targetBrowserPane = (int)(dynamic)Hm.Macro.Var["#TARGET_BROWSER_PANE"];
                 this.phpHostName = hostName;
                 this.phpHostPort = hostPort;
+                this.isMustReflesh = false;
 
                 currMacroFilePath = (String)Hm.Macro.Var["currentmacrofilename"];
                 Destroy();
@@ -38,6 +43,8 @@ namespace HmPHPSimpleDaemon
                 SetPHPServerDocumentRoot(parentDocumentRoot);
 
                 CreatePHPServerProcess(phpExePath);
+
+                CreateFileWatcher();
 
                 CreateTaskMonitoringFilePath();
 
@@ -49,6 +56,36 @@ namespace HmPHPSimpleDaemon
             }
 
             return "";
+        }
+
+        private void CreateFileWatcher()
+        {
+            string filepath = Hm.Edit.FilePath;
+            if (!String.IsNullOrEmpty(filepath))
+            {
+                var directory = Path.GetDirectoryName(filepath);
+                var filename = Path.GetFileName(filepath); 
+                watcher = new System.IO.FileSystemWatcher(directory, filename);
+
+                //監視するフィールドの設定
+                watcher.NotifyFilter = (NotifyFilters.LastWrite);
+
+                //サブディレクトリは監視しない
+                watcher.IncludeSubdirectories = false;
+
+                //監視を開始する
+                watcher.EnableRaisingEvents = true;
+                watcher.Changed += new System.IO.FileSystemEventHandler(watcher_Changed);
+            }
+        }
+
+        bool isMustReflesh = false;
+
+        private void watcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            if (!Hm.Macro.IsExecuting) {
+                isMustReflesh = true;
+            }
         }
 
         // 秀丸で編集中ファイル名をモニターするためのタスク生成
@@ -73,7 +110,8 @@ namespace HmPHPSimpleDaemon
                 if (dir == phpServerDocumentFolder)
                 {
                     return Path.GetFileName(filepath);
-                } else
+                }
+                else
                 {
                     var uriCurrentEditFilePath = new Uri(filepath).ToString();
                     var uriPhpDocumentRoot = new Uri(phpServerDocumentFolder).ToString();
@@ -132,7 +170,8 @@ namespace HmPHPSimpleDaemon
                 {
                     phpServerDocumentFolder = Path.GetDirectoryName(currFilePath);
                 }
-            } else
+            }
+            else
             {
                 if (Directory.Exists(parentDocumentRoot))
                 {
@@ -169,6 +208,19 @@ namespace HmPHPSimpleDaemon
 
                         // 自分自身を実行
                         Hm.Macro.Exec.File(currMacroFilePath);
+                    }
+                }
+
+                if (isMustReflesh)
+                {
+                    isMustReflesh = false;
+
+                    // 同期マクロ実行中ではない
+                    if (!Hm.Macro.IsExecuting && !String.IsNullOrEmpty(currFileFullPath))
+                    {
+
+                        // 自分自身を実行
+                        Hm.Macro.Exec.Eval($"refreshbrowserpane {targetBrowserPane};");
                     }
                 }
             }
