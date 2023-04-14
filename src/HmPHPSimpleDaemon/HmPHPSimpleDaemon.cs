@@ -196,14 +196,14 @@ namespace HmPHPSimpleDaemon
         // これによりマクロにより、このクラスのインスタンスがクリアされるとともに、新たなファイル名、新たなポート番号を使って、PHPサーバーが再起動される。
         private async Task<string> TickMethodAsync(CancellationToken ct)
         {
-            for (int i = 0; i < 5; i++)
-            {
-                ct.ThrowIfCancellationRequested();
-            }
+            ct.ThrowIfCancellationRequested();
 
             while (true)
             {
-                await DelayMethod(ct);
+                for (int i = 0; i < 3; i++)
+                {
+                    await DelayMethod(ct);
+                }
 
                 string currFileFullPath = Hm.Edit.FilePath;
                 // ファイル名が変化したら、改めて自分自身のマクロを実行する。
