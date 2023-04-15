@@ -23,7 +23,6 @@
 <?php
 echo $aaa = filter_input(INPUT_GET, 'text');
 ?>
-
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script>
 </body>
 

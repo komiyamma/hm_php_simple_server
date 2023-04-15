@@ -68,7 +68,7 @@ CREATE_PHP_SERVER_UNIQUE_PORT:
     } else {
         #PHP_HOSTPORT = val($STR_PORT);
         #PHP_HOSTPORT = #PHP_HOSTPORT + 1;
-        if (#PHP_HOSTPORT > 60000) {
+        if (#PHP_HOSTPORT > 51000) {
             #PHP_HOSTPORT = 50001;
         }
         setstaticvariable "HmPHPSimpleDaemonLastPort", str(#PHP_HOSTPORT), 1;
