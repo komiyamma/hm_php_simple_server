@@ -206,6 +206,17 @@ namespace HmPHPSimpleDaemon
                 }
 
                 string currFileFullPath = Hm.Edit.FilePath;
+
+                if (String.IsNullOrEmpty(currFileFullPath))
+                {
+
+                    string command = $"setbrowserpaneurl \"about:blank\", {targetBrowserPane};";
+
+                    // リフレッシュする
+                    Hm.Macro.Exec.Eval(command);
+                    Destroy();
+                }
+
                 // ファイル名が変化したら、改めて自分自身のマクロを実行する。
                 if (prevFileFullPath != currFileFullPath)
                 {
@@ -237,7 +248,7 @@ namespace HmPHPSimpleDaemon
 
         private static async Task<CancellationToken> DelayMethod(CancellationToken ct)
         {
-            await Task.Delay(100);
+            await Task.Delay(150);
             if (ct.IsCancellationRequested)
             {
                 // Clean up here, then...
