@@ -32,13 +32,25 @@ namespace HmPHPSimpleDaemon
         {
             try
             {
+                Destroy();
+
+                // なにやら有効な上書きのドキュメントルートが指定されている
+                if (!String.IsNullOrEmpty(parentDocumentRoot))
+                {
+                    // だがそのようなディレクトリは存在しない
+                    if (!Directory.Exists(parentDocumentRoot))
+                    {
+                        Hm.OutputPane.Output($"「{parentDocumentRoot}」というディレクトリは存在しません。");
+                        return "";
+                    }
+                }
+
                 this.targetBrowserPane = (int)(dynamic)Hm.Macro.Var["#TARGET_BROWSER_PANE"];
                 this.phpHostName = hostName;
                 this.phpHostPort = hostPort;
                 this.isMustReflesh = false;
 
                 currMacroFilePath = (String)Hm.Macro.Var["currentmacrofilename"];
-                Destroy();
 
                 SetPHPServerDocumentRoot(parentDocumentRoot);
 
@@ -68,7 +80,7 @@ namespace HmPHPSimpleDaemon
                 watcher = new System.IO.FileSystemWatcher(directory, filename);
 
                 //監視するフィールドの設定
-                watcher.NotifyFilter = (NotifyFilters.LastWrite);
+                watcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.Size);
 
                 //サブディレクトリは監視しない
                 watcher.IncludeSubdirectories = false;
@@ -94,6 +106,7 @@ namespace HmPHPSimpleDaemon
             if (!Hm.Macro.IsExecuting)
             {
                 isMustReflesh = true;
+                // Hm.OutputPane.Output("watcher_Changed");
             }
         }
 
@@ -233,14 +246,16 @@ namespace HmPHPSimpleDaemon
 
                 if (isMustReflesh)
                 {
-                    isMustReflesh = false;
 
+                    // Hm.OutputPane.Output("isMustReflesh");
                     // 同期マクロ実行中ではない
                     if (!Hm.Macro.IsExecuting && !String.IsNullOrEmpty(currFileFullPath))
                     {
+                        // Hm.OutputPane.Output("refreshbrowserpane");
 
                         // リフレッシュする
                         Hm.Macro.Exec.Eval($"refreshbrowserpane {targetBrowserPane};");
+                        isMustReflesh = false;
                     }
                 }
             }

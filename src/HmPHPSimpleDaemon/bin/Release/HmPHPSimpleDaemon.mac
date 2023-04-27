@@ -1,4 +1,6 @@
 ﻿/*
+ * HmPHPSimpleDaemon v0.8.1.0
+ *
  * Copyright (c) 2023 Akitsugu Komiyama
  * under the MIT License
  */
@@ -8,16 +10,17 @@
 PHP_SERVER_SETTING:
 
     // 手元にある php.exe へのフルパスを指定。
-    // PCに入っていなければ、「https://windows.php.net/download#php-8.2」の「Zip」とあるものならどれでもOK
+    // PCに入っていなければ、「https://windows.php.net/download」の「Zip」とあるものならどれでもOK (少々古いPHPでも問題はない)
     $PHP_FULLPATH = @"C:\usr\php\php.exe";
 
     // localhost に相当するものは、秀丸のURLからjavascript:(～)が実行可能です。
     $PHP_HOSTNAME = @"localhost";
-    #TARGET_BROWSER_PANE = 2; // 個別ブラウザ枠:2  共用ブラウザ枠:1
+    #TARGET_BROWSER_PANE = 2; // 個別ブラウザ枠:2  共用ブラウザ枠:1   ※使用用途から考えて、原則的には個別ブラウザ枠を強く推奨。
 
-    $PHP_DOCUMENTROOT = @""; // 通常はこのまま空白でOK。PHPサーバーのドキュメントルート。空白なら「秀丸で開いているファイルのフォルダー」がドキュメントルート。
-
-
+    $PHP_DOCUMENTROOT = getarg(0); // PHPサーバーのドキュメントルート。空白なら「秀丸で開いているファイルのフォルダー」がドキュメントルート。
+                                   // 通常はこのまま空白でOK。このマクロに対して引数として渡すことが出来る。
+                                   // 「execmacroで引数付き」やブックマークの「mac:"****\\HmPHPSimpleDaemon.mac" "C:\test"」といったように使用することが出来る。
+                                   
 CLEAR_OLD_PHP_SERVER_OBJECT:
 
     // 「この秀丸プロセス」内でのオブジェクト番号を取り出す
