@@ -40,6 +40,9 @@ CLEAR_OLD_PHP_SERVER_OBJECT:
 
 
 UNTITLED_EXIT:
+
+    // 無題なら何もしない。マクロの一番先頭ではなく、この位置にある理由は、
+    // 「１つ前に使っていたPHPサーバーオブジェクトの破棄」はしておきたいため、
     if (filename2 == "") {
         endmacro;
     }
@@ -79,9 +82,12 @@ CREATE_PHP_SERVER_UNIQUE_PORT:
     } else {
         #PHP_HOSTPORT = val($STR_PORT);
         #PHP_HOSTPORT = #PHP_HOSTPORT + 1;
+
+        // 範囲外に溢れていたら、一番小さな値から
         if (#PHP_HOSTPORT > #END_PORT) {
             #PHP_HOSTPORT = #BGN_PORT;
         }
+        // 範囲外に溢れていたら、一番小さな値から
         if (#PHP_HOSTPORT < #BGN_PORT) {
             #PHP_HOSTPORT = #BGN_PORT;
         }
