@@ -6,10 +6,15 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net.NetworkInformation;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using HmNetCOM;
+using System.Linq;
+using System.Collections.Generic;
+
 
 namespace HmPHPSimpleDaemon
 {

@@ -48,6 +48,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>HmNetCOM.tt</DependentUpon>
     </Compile>
+    <Compile Include="HmUsedPortChecker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

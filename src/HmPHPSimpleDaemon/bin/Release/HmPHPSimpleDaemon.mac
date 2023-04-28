@@ -63,20 +63,37 @@ CREATE_PHP_SERVER_OBJECT:
 
 CREATE_PHP_SERVER_UNIQUE_PORT:
 
-     // 全秀丸共有で#PHP_HOSTPORTを持つ。１つずつインクリメントで「全秀丸プロセス」でユニークとし、被らないようにする
+    #BGN_PORT = 50001;
+    #END_PORT = 50005;
+
+     // 全秀丸共有で#PHP_HOSTPORTを持つ。１つずつインクリメントで「全秀丸プロセス」でユニークとし、まずは被りにくいようにする
     $STR_PORT = getstaticvariable("HmPHPSimpleDaemonLastPort", 1);
     if ($STR_PORT == "") {
-        #PHP_HOSTPORT = 50001;
+        #PHP_HOSTPORT = #BGN_PORT;
+
+        // 被りにくい番号～ #END_PORTの範囲で、「本当に使われていない」Port番号を探す
+        call GET_AVILABLE_PORT #PHP_HOSTPORT, #END_PORT;
+        #PHP_HOSTPORT = ##return;
+
         setstaticvariable "HmPHPSimpleDaemonLastPort", str(#PHP_HOSTPORT), 1;
     } else {
         #PHP_HOSTPORT = val($STR_PORT);
         #PHP_HOSTPORT = #PHP_HOSTPORT + 1;
-        if (#PHP_HOSTPORT > 51000) {
-            #PHP_HOSTPORT = 50001;
+        if (#PHP_HOSTPORT > #END_PORT) {
+            #PHP_HOSTPORT = #BGN_PORT;
         }
+        if (#PHP_HOSTPORT < #BGN_PORT) {
+            #PHP_HOSTPORT = #BGN_PORT;
+        }
+
+        // 被りにくい番号～ #END_PORTの範囲で、「本当に使われていない」Port番号を探す
+        call GET_AVILABLE_PORT #PHP_HOSTPORT, #END_PORT;
+        #PHP_HOSTPORT = ##return;
+
         setstaticvariable "HmPHPSimpleDaemonLastPort", str(#PHP_HOSTPORT), 1;
     }
 
+    // 各種情報を基に、PHPを簡易サーバーとして起動
     $URI = member(#PHP_OBJ, "Launch", $PHP_FULLPATH, $PHP_HOSTNAME, #PHP_HOSTPORT, $PHP_DOCUMENTROOT);
 
 
@@ -87,3 +104,16 @@ SHOW_BROWSER_PANE_BY_HTTP_URL:
     showbrowserpane 1, #TARGET_BROWSER_PANE;
     // 対応するポートでPHPサーバーが立っているので、そのURLをブラウザ枠に表示。
     setbrowserpaneurl "http://" + $PHP_HOSTNAME + ":" + str(#PHP_HOSTPORT) + "/" + $URI, #TARGET_BROWSER_PANE;
+
+    endmacro;
+
+
+GET_AVILABLE_PORT:
+    #PORT_OBJ = createobject( currentmacrodirectory + @"\HmPHPSimpleDaemon.dll", "HmPHPSimpleDaemon.HmUsedPortChecker");
+    #AVAILABLE_PORT = member(#PORT_OBJ, "GetAvailablePort", ##1, ##2); // この範囲で空いているポートで最初の番号のものを取得
+
+    if (#AVAILABLE_PORT == 0) {
+        message("ポート番号に空きがありません。\n#BGN_PORT と #END_PORT の範囲を広げて下さい。");
+        endmacro;
+    }
+    return #AVAILABLE_PORT;
