@@ -7,7 +7,7 @@
 
 
 
-PHP_SERVER_SETTING:
+SET_PHP_SERVER_INFO:
 
     // 手元にある php.exe へのフルパスを指定。
     // PCに入っていなければ、「https://windows.php.net/download」の「Zip」とあるものならどれでもOK (少々古いPHPでも問題はない)
@@ -21,7 +21,7 @@ PHP_SERVER_SETTING:
                                    // 通常はこのまま空白でOK。このマクロに対して引数として渡すことが出来る。
                                    // 「execmacroで引数付き」やブックマークの「mac:"****\\HmPHPSimpleDaemon.mac" "C:\test"」といったように使用することが出来る。
 
-CLEAR_OLD_PHP_SERVER_OBJECT:
+RELEASE_OLD_PHP_SERVER_OBJECT:
 
     // 「この秀丸プロセス」内でのオブジェクト番号を取り出す
     $LAST_PHP_OBJ = getstaticvariable("HmPHPSimpleDaemonLastObj", 2);
@@ -39,7 +39,7 @@ CLEAR_OLD_PHP_SERVER_OBJECT:
     }
 
 
-UNTITLED_EXIT:
+THROW_IF_FILENAME_IS_EMPTY:
 
     // 無題なら何もしない。マクロの一番先頭ではなく、この位置にある理由は、
     // 「１つ前に使っていたPHPサーバーオブジェクトの破棄」はしておきたいため、
@@ -64,22 +64,22 @@ CREATE_PHP_SERVER_OBJECT:
 
 
 
-CREATE_PHP_SERVER_UNIQUE_PORT:
+FIND_PHP_SERVER_AVILABLE_PORT:
 
     #BGN_PORT = 50001;
     #END_PORT = 50300;
 
      // 全秀丸共有で#PHP_HOSTPORTを持つ。１つずつインクリメントで「全秀丸プロセス」でユニークとし、まずは被りにくいようにする
     $STR_PORT = getstaticvariable("HmPHPSimpleDaemonLastPort", 1);
+
+    // 初回起動時は、#BGN_PORT を「かぶりにくい番号」とする。
     if ($STR_PORT == "") {
+
         #PHP_HOSTPORT = #BGN_PORT;
 
-        // 被りにくい番号～ #END_PORTの範囲で、「本当に使われていない」Port番号を探す
-        call GET_AVILABLE_PORT #PHP_HOSTPORT, #END_PORT;
-        #PHP_HOSTPORT = ##return;
-
-        setstaticvariable "HmPHPSimpleDaemonLastPort", str(#PHP_HOSTPORT), 1;
+    // 最後に起動した際のポート番号に1足したものを「被りにくい番号」とする。
     } else {
+
         #PHP_HOSTPORT = val($STR_PORT);
         #PHP_HOSTPORT = #PHP_HOSTPORT + 1;
 
@@ -91,20 +91,30 @@ CREATE_PHP_SERVER_UNIQUE_PORT:
         if (#PHP_HOSTPORT < #BGN_PORT) {
             #PHP_HOSTPORT = #BGN_PORT;
         }
-
-        // 被りにくい番号～ #END_PORTの範囲で、「本当に使われていない」Port番号を探す
-        call GET_AVILABLE_PORT #PHP_HOSTPORT, #END_PORT;
-        #PHP_HOSTPORT = ##return;
-
-        setstaticvariable "HmPHPSimpleDaemonLastPort", str(#PHP_HOSTPORT), 1;
     }
+
+    // 被りにくい番号～ #END_PORTの範囲で、「本当に使われていないPort番号」を探す
+    // 予め１ずつずらしているのは、「本当に使われていない」という判定はどうあってもOSに訪ねたとしても完璧にはならないため、
+    // ずらしていくことで万が一判定に失敗しても、Port番号が変わることで状況が改善する余地を残しておく。
+    #PORT_OBJ = createobject( currentmacrodirectory + @"\HmPHPSimpleDaemon.dll", "HmPHPSimpleDaemon.HmUsedPortChecker");
+    #PHP_HOSTPORT = member(#PORT_OBJ, "GetAvailablePort", ##1, ##2); // この範囲で空いているポートで最初の番号のものを取得
+
+    if (#PHP_HOSTPORT == 0) {
+        message("ポート番号に空きがありません。\n#BGN_PORT と #END_PORT の範囲を広げて下さい。");
+        endmacro;
+    }
+
+    setstaticvariable "HmPHPSimpleDaemonLastPort", str(#PHP_HOSTPORT), 1;
+
+
+LAUNCH_PHP_SERVER:
 
     // 各種情報を基に、PHPを簡易サーバーとして起動
     $URI = member(#PHP_OBJ, "Launch", $PHP_FULLPATH, $PHP_HOSTNAME, #PHP_HOSTPORT, $PHP_DOCUMENTROOT);
 
 
 
-SHOW_BROWSER_PANE_BY_HTTP_URL:
+SHOW_HTTP_URL_IN_BROWSER_PANE:
 
     // ブラウザ枠で表示
     showbrowserpane 1, #TARGET_BROWSER_PANE;
@@ -113,13 +123,3 @@ SHOW_BROWSER_PANE_BY_HTTP_URL:
 
     endmacro;
 
-
-GET_AVILABLE_PORT:
-    #PORT_OBJ = createobject( currentmacrodirectory + @"\HmPHPSimpleDaemon.dll", "HmPHPSimpleDaemon.HmUsedPortChecker");
-    #AVAILABLE_PORT = member(#PORT_OBJ, "GetAvailablePort", ##1, ##2); // この範囲で空いているポートで最初の番号のものを取得
-
-    if (#AVAILABLE_PORT == 0) {
-        message("ポート番号に空きがありません。\n#BGN_PORT と #END_PORT の範囲を広げて下さい。");
-        endmacro;
-    }
-    return #AVAILABLE_PORT;
