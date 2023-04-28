@@ -64,7 +64,7 @@ CREATE_PHP_SERVER_OBJECT:
 CREATE_PHP_SERVER_UNIQUE_PORT:
 
     #BGN_PORT = 50001;
-    #END_PORT = 50100;
+    #END_PORT = 50300;
 
      // 全秀丸共有で#PHP_HOSTPORTを持つ。１つずつインクリメントで「全秀丸プロセス」でユニークとし、まずは被りにくいようにする
     $STR_PORT = getstaticvariable("HmPHPSimpleDaemonLastPort", 1);
