@@ -166,19 +166,25 @@ namespace HmPHPSimpleDaemon
         // PHPプロセス生成
         private void CreatePHPServerProcess(string phpExePath)
         {
-            phpProcess = new Process();
-            ProcessStartInfo psi = phpProcess.StartInfo;
-            psi.FileName = phpExePath;
-            psi.Arguments = $" -S {this.phpHostName}:{this.phpHostPort} -t \"{this.phpServerDocumentFolder}\" ";
+            try
+            {
+                phpProcess = new Process();
+                ProcessStartInfo psi = phpProcess.StartInfo;
+                psi.FileName = phpExePath;
+                psi.Arguments = $" -S {this.phpHostName}:{this.phpHostPort} -t \"{this.phpServerDocumentFolder}\" ";
 
-            psi.UseShellExecute = false;
-            psi.CreateNoWindow = true;
-            psi.RedirectStandardOutput = true;
-            psi.RedirectStandardError = true;
-            psi.WindowStyle = ProcessWindowStyle.Hidden;
-            phpProcess.OutputDataReceived += Proc_OutputDataReceived;
+                psi.UseShellExecute = false;
+                psi.CreateNoWindow = true;
+                psi.RedirectStandardOutput = true;
+                psi.RedirectStandardError = true;
+                psi.WindowStyle = ProcessWindowStyle.Hidden;
+                phpProcess.OutputDataReceived += Proc_OutputDataReceived;
 
-            phpProcess.Start();
+                phpProcess.Start();
+            } catch(Exception ex)
+            {
+                Hm.OutputPane.Output("\"" + phpExePath + "\"" + ":\r\n" + ex.ToString() + "\r\n");
+            }
         }
 
         // PHPが起動する際のドキュメントルート

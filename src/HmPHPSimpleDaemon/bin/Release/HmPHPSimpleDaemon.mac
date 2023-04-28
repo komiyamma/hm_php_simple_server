@@ -11,7 +11,7 @@ SET_PHP_SERVER_INFO:
 
     // 手元にある php.exe へのフルパスを指定。
     // PCに入っていなければ、「https://windows.php.net/download」の「Zip」とあるものならどれでもOK (少々古いPHPでも問題はない)
-    $PHP_FULLPATH = @"C:\usr\php\php.exe";
+    $PHP_FULLPATH = @"C:\usr\php\php.exe"; 
 
     // localhost に相当するものは、秀丸のURLからjavascript:(～)が実行可能です。
     $PHP_HOSTNAME = @"localhost";
@@ -24,17 +24,17 @@ SET_PHP_SERVER_INFO:
 RELEASE_OLD_PHP_SERVER_OBJECT:
 
     // 「この秀丸プロセス」内でのオブジェクト番号を取り出す
-    $LAST_PHP_OBJ = getstaticvariable("HmPHPSimpleDaemonLastObj", 2);
+    $LAST_PHP_SERVER_COM = getstaticvariable("HmPHPSimpleDaemonLastObj", 2);
 
     // 有効な値があるならば...
-    if ($LAST_PHP_OBJ != "") {
-        #LAST_PHP_OBJ = val($LAST_PHP_OBJ); // 文字列の数字 ⇒ 数値へ
+    if ($LAST_PHP_SERVER_COM != "") {
+        #LAST_PHP_SERVER_COM = val($LAST_PHP_SERVER_COM); // 文字列の数字 ⇒ 数値へ
 
         // 該当の値をToStringして本当に「HmPHPSimpleDaemon」のオブジェクトか確認する。
         // .NET で制作しているものはすべてのオブジェクトがToStringを持つ、それは「名前空間.クラス名」なのでこのような判定が出来る。
-        $OBJ_CLASS_NAME = member(#LAST_PHP_OBJ, "ToString");
+        $OBJ_CLASS_NAME = member(#LAST_PHP_SERVER_COM, "ToString");
         if ($OBJ_CLASS_NAME == "HmPHPSimpleDaemon.HmPHPSimpleDaemon") {
-            releaseobject(#PHP_OBJ_INDEX); // HmPHPSimpleDaemon.HmPHPSimpleDaemon 内の「OnReleaseObject」も実行される。
+            releaseobject(#LAST_PHP_SERVER_COM); // HmPHPSimpleDaemon.HmPHPSimpleDaemon 内の「OnReleaseObject」も実行される。
         }
     }
 
@@ -51,16 +51,16 @@ THROW_IF_FILENAME_IS_EMPTY:
 
 CREATE_PHP_SERVER_OBJECT:
 
-    #PHP_OBJ = createobject( currentmacrodirectory + @"\HmPHPSimpleDaemon.dll", "HmPHPSimpleDaemon.HmPHPSimpleDaemon");
+    #PHP_SERVER_COM = createobject( currentmacrodirectory + @"\HmPHPSimpleDaemon.dll", "HmPHPSimpleDaemon.HmPHPSimpleDaemon");
 
     // 「この秀丸プロセス」内でのオブジェクト番号を記憶しておく
-    setstaticvariable "HmPHPSimpleDaemonLastObj", str(#PHP_OBJ), 2; // 
+    setstaticvariable "HmPHPSimpleDaemonLastObj", str(#PHP_SERVER_COM), 2; // 
 
     // マクロが終了してもオブジェクトは維持。シングルトンにするため、マクロの「CLEAR_OLD_PHP_SERVER_OBJECT:」で古い起動は掃除している。
-    keepobject #PHP_OBJ, 1;
+    keepobject #PHP_SERVER_COM, 1;
 
     // 掃除される際(releaseobjectやプロセスを閉じた、何か秀丸レベルで致命的マクロエラーとなった際)に呼び出される
-    setcomdetachmethod #PHP_OBJ, "OnReleaseObject";
+    setcomdetachmethod #PHP_SERVER_COM, "OnReleaseObject";
 
 
 
@@ -79,7 +79,6 @@ FIND_PHP_SERVER_AVILABLE_PORT:
 
     // 最後に起動した際のポート番号に1足したものを「被りにくい番号」とする。
     } else {
-
         #PHP_HOSTPORT = val($STR_PORT);
         #PHP_HOSTPORT = #PHP_HOSTPORT + 1;
 
@@ -95,9 +94,13 @@ FIND_PHP_SERVER_AVILABLE_PORT:
 
     // 被りにくい番号～ #END_PORTの範囲で、「本当に使われていないPort番号」を探す
     // 予め１ずつずらしているのは、「本当に使われていない」という判定はどうあってもOSに訪ねたとしても完璧にはならないため、
-    // ずらしていくことで万が一判定に失敗しても、Port番号が変わることで状況が改善する余地を残しておく。
-    #PORT_OBJ = createobject( currentmacrodirectory + @"\HmPHPSimpleDaemon.dll", "HmPHPSimpleDaemon.HmUsedPortChecker");
-    #PHP_HOSTPORT = member(#PORT_OBJ, "GetAvailablePort", ##1, ##2); // この範囲で空いているポートで最初の番号のものを取得
+    // 最低１ずつずらしていくことで、判定に失敗しても Port番号が変わることにより状況が改善する余地を残しておく。
+    #PORT_CHECKER_COM = createobject( currentmacrodirectory + @"\HmPHPSimpleDaemon.dll", "HmPHPSimpleDaemon.HmUsedPortChecker");
+
+    // 「被りにくい番号」～「ポート番号最終番」の範囲で空いているポートを探し、一番若い番号を取得
+    #PHP_HOSTPORT = member(#PORT_CHECKER_COM, "GetAvailablePort", #PHP_HOSTPORT, #END_PORT); // 
+
+    releaseobject(#PORT_CHECKER_COM);
 
     if (#PHP_HOSTPORT == 0) {
         message("ポート番号に空きがありません。\n#BGN_PORT と #END_PORT の範囲を広げて下さい。");
@@ -110,7 +113,7 @@ FIND_PHP_SERVER_AVILABLE_PORT:
 LAUNCH_PHP_SERVER:
 
     // 各種情報を基に、PHPを簡易サーバーとして起動
-    $URI = member(#PHP_OBJ, "Launch", $PHP_FULLPATH, $PHP_HOSTNAME, #PHP_HOSTPORT, $PHP_DOCUMENTROOT);
+    $RELATIVE_URI = member(#PHP_SERVER_COM, "Launch", $PHP_FULLPATH, $PHP_HOSTNAME, #PHP_HOSTPORT, $PHP_DOCUMENTROOT);
 
 
 
@@ -119,7 +122,7 @@ SHOW_HTTP_URL_IN_BROWSER_PANE:
     // ブラウザ枠で表示
     showbrowserpane 1, #TARGET_BROWSER_PANE;
     // 対応するポートでPHPサーバーが立っているので、そのURLをブラウザ枠に表示。
-    setbrowserpaneurl "http://" + $PHP_HOSTNAME + ":" + str(#PHP_HOSTPORT) + "/" + $URI, #TARGET_BROWSER_PANE;
+    setbrowserpaneurl "http://" + $PHP_HOSTNAME + ":" + str(#PHP_HOSTPORT) + "/" + $RELATIVE_URI, #TARGET_BROWSER_PANE;
 
     endmacro;
 
