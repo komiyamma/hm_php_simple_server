@@ -20,7 +20,7 @@ PHP_SERVER_SETTING:
     $PHP_DOCUMENTROOT = getarg(0); // PHPサーバーのドキュメントルート。空白なら「秀丸で開いているファイルのフォルダー」がドキュメントルート。
                                    // 通常はこのまま空白でOK。このマクロに対して引数として渡すことが出来る。
                                    // 「execmacroで引数付き」やブックマークの「mac:"****\\HmPHPSimpleDaemon.mac" "C:\test"」といったように使用することが出来る。
-                                   
+
 CLEAR_OLD_PHP_SERVER_OBJECT:
 
     // 「この秀丸プロセス」内でのオブジェクト番号を取り出す
@@ -64,7 +64,7 @@ CREATE_PHP_SERVER_OBJECT:
 CREATE_PHP_SERVER_UNIQUE_PORT:
 
     #BGN_PORT = 50001;
-    #END_PORT = 50005;
+    #END_PORT = 50100;
 
      // 全秀丸共有で#PHP_HOSTPORTを持つ。１つずつインクリメントで「全秀丸プロセス」でユニークとし、まずは被りにくいようにする
     $STR_PORT = getstaticvariable("HmPHPSimpleDaemonLastPort", 1);
