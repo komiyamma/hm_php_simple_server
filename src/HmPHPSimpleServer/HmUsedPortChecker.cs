@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HmPHPSimpleDaemon
+namespace HmPHPSimpleServer
 {
     [Guid("A9F3D309-2A2C-4F74-8079-98BE985D0764")]
     public class HmUsedPortChecker

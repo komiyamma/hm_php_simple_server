@@ -16,10 +16,10 @@ using System.Linq;
 using System.Collections.Generic;
 
 
-namespace HmPHPSimpleDaemon
+namespace HmPHPSimpleServer
 {
     [Guid("B4BE82DB-9F1F-423C-BAA3-39AAC146AB44")]
-    public class HmPHPSimpleDaemon
+    public class HmPHPSimpleServer
     {
         static Process phpProcess;
         string phpServerDocumentFolder;
@@ -216,7 +216,7 @@ namespace HmPHPSimpleDaemon
         string prevFileFullPath = null;
         string currMacroFilePath = "";
 
-        // ファイル名が変化したことを検知したら、HmPHPSimpleDaemon.mac(自分の呼び出し元)を改めて実行する。
+        // ファイル名が変化したことを検知したら、HmPHPSimpleServer.mac(自分の呼び出し元)を改めて実行する。
         // これによりマクロにより、このクラスのインスタンスがクリアされるとともに、新たなファイル名、新たなポート番号を使って、PHPサーバーが再起動される。
         private async Task<string> TickMethodAsync(CancellationToken ct)
         {

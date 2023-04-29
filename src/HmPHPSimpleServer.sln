@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HmPHPSimpleDaemon", "HmPHPSimpleDaemon\HmPHPSimpleDaemon.csproj", "{0A3A9F98-3D8F-43EE-B660-86FCD56FE21B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HmPHPSimpleServer", "HmPHPSimpleServer\HmPHPSimpleServer.csproj", "{0A3A9F98-3D8F-43EE-B660-86FCD56FE21B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

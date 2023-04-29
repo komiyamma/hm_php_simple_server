@@ -8,8 +8,8 @@
     <LangVersion>11</LangVersion>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HmPHPSimpleDaemon</RootNamespace>
-    <AssemblyName>HmPHPSimpleDaemon</AssemblyName>
+    <RootNamespace>HmPHPSimpleServer</RootNamespace>
+    <AssemblyName>HmPHPSimpleServer</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -42,7 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HmPHPSimpleDaemon.cs" />
+    <Compile Include="HmPHPSimpleServer.cs" />
     <Compile Include="HmNetCOM.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

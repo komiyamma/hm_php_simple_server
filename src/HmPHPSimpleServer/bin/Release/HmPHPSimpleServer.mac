@@ -1,5 +1,5 @@
 ﻿/*
- * HmPHPSimpleDaemon v0.8.1.0
+ * HmPHPSimpleServer v0.8.1.0
  *
  * Copyright (c) 2023 Akitsugu Komiyama
  * under the MIT License
@@ -18,7 +18,7 @@ SET_PHP_SERVER_INFO:
 
     $PHP_DOCUMENTROOT = getarg(0);         // PHPサーバーのドキュメントルート。空白なら「秀丸で開いているファイルのフォルダー」がドキュメントルート。
                                            // 通常はこのまま空白でOK。このマクロに対して引数として渡すことが出来る。
-                                           // 「execmacroで引数付き」やブックマークの「mac:"****\\HmPHPSimpleDaemon.mac" "C:\test"」といったように使用することが出来る。
+                                           // 「execmacroで引数付き」やブックマークの「mac:"****\\HmPHPSimpleServer.mac" "C:\test"」といったように使用することが出来る。
 
     #BGN_PORT = 50001;                     // サーバー用に利用する 最低のポート番号
     #END_PORT = 50300;                     // サーバー用に利用する 最大のポート番号
@@ -27,17 +27,17 @@ SET_PHP_SERVER_INFO:
 RELEASE_OLD_PHP_SERVER_OBJECT:
 
     // 「この秀丸プロセス」内でのオブジェクト番号を取り出す
-    $LAST_PHP_SERVER_COM = getstaticvariable("HmPHPSimpleDaemonLastObj", 2);
+    $LAST_PHP_SERVER_COM = getstaticvariable("HmPHPSimpleServerLastObj", 2);
 
     // 有効な値があるならば...
     if ($LAST_PHP_SERVER_COM != "") {
         #LAST_PHP_SERVER_COM = val($LAST_PHP_SERVER_COM); // 文字列の数字 ⇒ 数値へ
 
-        // 該当の値をToStringして本当に「HmPHPSimpleDaemon」のオブジェクトか確認する。
+        // 該当の値をToStringして本当に「HmPHPSimpleServer」のオブジェクトか確認する。
         // .NET で制作しているものはすべてのオブジェクトがToStringを持つ、それは「名前空間.クラス名」なのでこのような判定が出来る。
         $OBJ_CLASS_NAME = member(#LAST_PHP_SERVER_COM, "ToString");
-        if ($OBJ_CLASS_NAME == "HmPHPSimpleDaemon.HmPHPSimpleDaemon") {
-            releaseobject(#LAST_PHP_SERVER_COM); // HmPHPSimpleDaemon.HmPHPSimpleDaemon 内の「OnReleaseObject」も実行される。
+        if ($OBJ_CLASS_NAME == "HmPHPSimpleServer.HmPHPSimpleServer") {
+            releaseobject(#LAST_PHP_SERVER_COM); // HmPHPSimpleServer.HmPHPSimpleServer 内の「OnReleaseObject」も実行される。
         }
     }
 
@@ -55,10 +55,10 @@ EXIT_IF_FILENAME_IS_EMPTY:
 CREATE_PHP_SERVER_OBJECT:
 
     // PHPサーバー関連オブジェクトの生成。秀丸のファイル名変更や、ファイル保存による更新、PHPサーバーのプロセスオブジェクトを管理する。
-    #PHP_SERVER_COM = createobject( currentmacrodirectory + @"\HmPHPSimpleDaemon.dll", "HmPHPSimpleDaemon.HmPHPSimpleDaemon");
+    #PHP_SERVER_COM = createobject( currentmacrodirectory + @"\HmPHPSimpleServer.dll", "HmPHPSimpleServer.HmPHPSimpleServer");
 
     // 「この秀丸プロセス」内でのオブジェクト番号を記憶しておく
-    setstaticvariable "HmPHPSimpleDaemonLastObj", str(#PHP_SERVER_COM), 2; // 
+    setstaticvariable "HmPHPSimpleServerLastObj", str(#PHP_SERVER_COM), 2; // 
 
     // マクロが終了してもオブジェクトは維持。シングルトンにするため、マクロの「CLEAR_OLD_PHP_SERVER_OBJECT:」で古い起動は掃除している。
     keepobject #PHP_SERVER_COM, 1;
@@ -71,7 +71,7 @@ CREATE_PHP_SERVER_OBJECT:
 FIND_PHP_SERVER_AVILABLE_PORT:
 
     // 全秀丸共有で#PHP_HOSTPORTを持つ。１つずつインクリメントで「全秀丸プロセス」でユニークとし、まずは被りにくいようにする
-    $STR_PORT = getstaticvariable("HmPHPSimpleDaemonLastPort", 1);
+    $STR_PORT = getstaticvariable("HmPHPSimpleServerLastPort", 1);
 
     // 初回起動時は、#BGN_PORT を「かぶりにくい番号」とする。
     if ($STR_PORT == "") {
@@ -93,7 +93,7 @@ FIND_PHP_SERVER_AVILABLE_PORT:
     }
 
     // 「本当に使われていないPort番号」を探すためのコンポーネント
-    #PORT_CHECKER_COM = createobject( currentmacrodirectory + @"\HmPHPSimpleDaemon.dll", "HmPHPSimpleDaemon.HmUsedPortChecker");
+    #PORT_CHECKER_COM = createobject( currentmacrodirectory + @"\HmPHPSimpleServer.dll", "HmPHPSimpleServer.HmUsedPortChecker");
 
     // 「被りにくい番号」～「ポート番号最終番」の範囲で空いているポートを探し、一番若い番号を取得
     #PHP_HOSTPORT = member(#PORT_CHECKER_COM, "GetAvailablePort", #PHP_HOSTPORT, #END_PORT); // 
@@ -105,7 +105,7 @@ FIND_PHP_SERVER_AVILABLE_PORT:
         endmacro;
     }
 
-    setstaticvariable "HmPHPSimpleDaemonLastPort", str(#PHP_HOSTPORT), 1;
+    setstaticvariable "HmPHPSimpleServerLastPort", str(#PHP_HOSTPORT), 1;
 
 
 LAUNCH_PHP_SERVER:

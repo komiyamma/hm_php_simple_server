@@ -1,4 +1,4 @@
-# hm_php_simple_daemon
+# HmPHPSimpleServer
 秀丸エディタ - ブラウザ枠用 - 簡易デーモン
 
 ## ダウンロード対象
@@ -14,14 +14,14 @@ https://windows.php.net/download#php-8.2
 zip ファイルを展開し適当な位置に配備
 
 
-## HmPHPSimpleDaemon.mac のマクロ編集
+## HmPHPSimpleServer.mac のマクロ編集
 
 ```
 $PHP_FULLPATH
 ```
 の変数内容をダウンロードしたphpの「php.exe」までのフルパスを設定。
 
-## HmPHPSimpleDaemon.mac のマクロの実行
+## HmPHPSimpleServer.mac のマクロの実行
 適当に「.html」や「.php」などまぁブラウザで開けそうな適当な「ファイルを秀丸で開き」、  
 「HmPHPSimpleDaemon.mac」を実行すると、「該当ファイルのフォルダを起点としてPHPサーバーが起動する」  
 このため、個別ブラウザでhttpとして表示できる。  
@@ -29,7 +29,7 @@ $PHP_FULLPATH
 **秀丸の１プロセスあたり、１つのサーバー**が起動する。  
 (よってそれぞれの秀丸の個別ブラウザに対して別々のサーバーが機能する)
 
-## 再度 HmPHPSimpleDaemon.mac のマクロを実行すると？
+## 再度 HmPHPSimplServer.mac のマクロを実行すると？
 **該当プロセスで起動中のPHPサーバー**が一旦終了し、再度起動する。  
 この際、それまでとは**Port番号が異なる**。  
 (全プロセスでマクロが実行される度にPort番号が１つずつ上がる。50500を超えると50001に戻る)
