@@ -1,9 +1,9 @@
 # HmPHPSimpleServer
-秀丸エディタ - ブラウザ枠用 - 簡易デーモン
+秀丸エディタ - ブラウザ枠用 - 簡易サーバー
 
 ## ダウンロード対象
-- https://github.com/komiyamma/hm_php_simple_daemon/releases  
-　の HmPHPSimpleDaemon.zip
+- https://github.com/komiyamma/hm_php_simple_server/releases  
+　の HmPHPSimpleServer.zip
 
 ## 動作イメージ
 [![youtube動画](youtube.png)](https://www.youtube.com/watch?v=kzg6j6lnc_Q&t=3s&ab_channel=%E3%81%93%E3%81%BF%E3%82%84%E3%82%93%E3%81%BE%E3%81%AE%E7%A7%80%E4%B8%B8%E3%81%A1%E3%82%83%E3%82%93%E3%81%AD%E3%82%8)
