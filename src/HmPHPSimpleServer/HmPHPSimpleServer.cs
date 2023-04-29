@@ -3,22 +3,18 @@
  * under the MIT License
  */
 
+using HmNetCOM;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net.NetworkInformation;
-using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using HmNetCOM;
-using System.Linq;
-using System.Collections.Generic;
 
 
 namespace HmPHPSimpleServer
 {
-    [Guid("B4BE82DB-9F1F-423C-BAA3-39AAC146AB44")]
+    [Guid("557DD52E-8900-4DD5-9203-8F30F7329C8D")]
     public class HmPHPSimpleServer
     {
         static Process phpProcess;

@@ -2,3 +2,7 @@ G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\obj\Release\HmPHPSimple
 G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\obj\Release\HmPHPSimpleServer.csproj.CoreCompileInputs.cache
 G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\bin\Release\HmPHPSimpleServer.dll
 G:\repogitory\hm_php_simple_daemon\src\HmPHPSimpleDaemon\obj\Release\HmPHPSimpleServer.dll
+G:\repogitory\hm_php_simple_server\src\HmPHPSimpleServer\bin\Release\HmPHPSimpleServer.dll
+G:\repogitory\hm_php_simple_server\src\HmPHPSimpleServer\obj\Release\HmPHPSimpleServer.csproj.AssemblyReference.cache
+G:\repogitory\hm_php_simple_server\src\HmPHPSimpleServer\obj\Release\HmPHPSimpleServer.csproj.CoreCompileInputs.cache
+G:\repogitory\hm_php_simple_server\src\HmPHPSimpleServer\obj\Release\HmPHPSimpleServer.dll

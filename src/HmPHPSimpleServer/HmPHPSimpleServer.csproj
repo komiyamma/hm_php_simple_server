@@ -42,12 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HmPHPSimpleServer.cs" />
     <Compile Include="HmNetCOM.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>HmNetCOM.tt</DependentUpon>
     </Compile>
+    <Compile Include="HmPHPSimpleServer.cs" />
     <Compile Include="HmUsedPortChecker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

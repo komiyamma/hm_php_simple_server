@@ -1,5 +1,5 @@
 ﻿/*
- * HmPHPSimpleServer v0.8.1.0
+ * HmPHPSimpleServer v0.9.1.0
  *
  * Copyright (c) 2023 Akitsugu Komiyama
  * under the MIT License
@@ -112,7 +112,7 @@ LAUNCH_PHP_SERVER:
 
     // 各種情報を基に、PHPを簡易サーバーとして起動
     $RELATIVE_URI = member(#PHP_SERVER_COM, "Launch", $PHP_FULLPATH, $PHP_HOSTNAME, #PHP_HOSTPORT, $PHP_DOCUMENTROOT);
-
+    message($RELATIVE_URI);
 
 
 SHOW_HTTP_URL_IN_BROWSER_PANE:

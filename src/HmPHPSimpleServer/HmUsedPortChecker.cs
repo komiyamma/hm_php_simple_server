@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace HmPHPSimpleServer
 {
-    [Guid("A9F3D309-2A2C-4F74-8079-98BE985D0764")]
+    [Guid("F62022BE-69BA-40FF-8EA9-EEABEF0041E0")]
     public class HmUsedPortChecker
     {
         List<int> portsInUse;

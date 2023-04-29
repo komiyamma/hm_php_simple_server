@@ -1637,7 +1637,7 @@ namespace HmNetCOM
     }
 
     public partial class HmMacroCOMVar {
-        private const string HmMacroCOMVarInterface = "31f6aa0b-3b03-4c5c-8309-957e8021bdf7";
+        private const string HmMacroCOMVarInterface = "af38225e-4fef-4243-ad85-f498037ba231";
     }
 }
 
