@@ -171,10 +171,10 @@ namespace HmPHPSimpleServer
 
                 psi.UseShellExecute = false;
                 psi.CreateNoWindow = true;
-                psi.RedirectStandardOutput = true;
-                psi.RedirectStandardError = true;
+                psi.RedirectStandardOutput = false;
+                psi.RedirectStandardError = false;
                 psi.WindowStyle = ProcessWindowStyle.Hidden;
-                phpProcess.OutputDataReceived += Proc_OutputDataReceived;
+                // phpProcess.OutputDataReceived += Proc_OutputDataReceived;
 
                 phpProcess.Start();
             } catch(Exception ex)
@@ -280,6 +280,7 @@ namespace HmPHPSimpleServer
             return ct;
         }
 
+        /*
         private void Proc_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (!String.IsNullOrEmpty(e.Data))
@@ -287,6 +288,7 @@ namespace HmPHPSimpleServer
                 Hm.OutputPane.Output(e.Data + "\r\n");
             }
         }
+        */
 
         public void OnReleaseObject(int reason = 0)
         {
