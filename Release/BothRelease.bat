@@ -1,5 +1,5 @@
 cd %~dp0
-
+copy "..\LICENSE.txt" LICENSE.txt
 copy "..\src\HmPHPSimpleServer\bin\Release\HmPHPSimpleServer.dll" HmPHPSimpleServer.dll
 copy "..\src\HmPHPSimpleServer\bin\Release\HmPHPSimpleServer.mac" HmPHPSimpleServer.mac
 copy "..\src.markdown\HmMarkdownSimpleServer\bin\Release\HmMarkdownSimpleServer.dll" HmMarkdownSimpleServer.dll

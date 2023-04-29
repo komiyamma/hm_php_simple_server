@@ -11,11 +11,11 @@ function updateMethod() {
         allLineCount = 1;
     }
     if (isDiff && posY > 0 && allLineCount > 0) {
-        if (posY < 5) { // 最初の行まであと10行程度なのであれば、最初にいる扱いにする。
+        if (posY < 3) { // 最初の行まであと3行程度なのであれば、最初にいる扱いにする。
             posY = 0;
         }
-        if (allLineCount - posY < 5) {
-            posY = allLineCount; // 最後の行まであと10行程度なのであれば、最後の行にいる扱いにする。
+        if (allLineCount - posY < 3) {
+            posY = allLineCount; // 最後の行まであと3行程度なのであれば、最後の行にいる扱いにする。
         }
         let perY = posY / allLineCount;
         if (perY >= 1) {

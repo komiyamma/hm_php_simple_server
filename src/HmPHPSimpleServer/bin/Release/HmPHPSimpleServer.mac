@@ -5,11 +5,12 @@
  * under the MIT License
  */
 
-// マークダウンの時は、このマクロではなくHmMarkdownSimpleServer.mac に流す。
+// Markdownファイルの時は、このマクロではなくHmMarkdownSimpleServer.mac に流す。
 if (filetype==".md") {
     $HmMarkdownSimpleServerMacroFile = currentmacrodirectory + @"\HmMarkdownSimpleServer.mac";
     if (existfile($HmMarkdownSimpleServerMacroFile)) {
         execmacro $HmMarkdownSimpleServerMacroFile;
+        endmacro;
     }
 }
 
