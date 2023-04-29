@@ -1,0 +1,74 @@
+﻿/*
+ * HmMarkdownSimpleServer v0.9.2.0
+ *
+ * Copyright (c) 2023 Akitsugu Komiyama
+ * under the MIT License
+ */
+
+SET_MARKDOWN_SERVER_INFO:
+
+    #TARGET_BROWSER_PANE = 2;              // 個別ブラウザ枠:2  共用ブラウザ枠:1   ※使用用途から考えて、原則的には個別ブラウザ枠を強く推奨。
+
+
+RELEASE_OLD_MARKDOWN_SERVER_OBJECT:
+
+    // 「この秀丸プロセス」内でのオブジェクト番号を取り出す
+    $LAST_MARKDOWN_SERVER_COM = getstaticvariable("HmMarkdownSimpleServerLastObj", 2);
+
+    // 有効な値があるならば...
+    if ($LAST_MARKDOWN_SERVER_COM != "") {
+        #LAST_MARKDOWN_SERVER_COM = val($LAST_MARKDOWN_SERVER_COM); // 文字列の数字 ⇒ 数値へ
+
+        // 該当の値をToStringして本当に「HmMarkdownSimpleServer」のオブジェクトか確認する。
+        // .NET で制作しているものはすべてのオブジェクトがToStringを持つ、それは「名前空間.クラス名」なのでこのような判定が出来る。
+        $OBJ_CLASS_NAME = member(#LAST_MARKDOWN_SERVER_COM, "ToString");
+        if ($OBJ_CLASS_NAME == "HmMarkdownSimpleServer.HmMarkdownSimpleServer") {
+            releaseobject(#LAST_MARKDOWN_SERVER_COM); // HmMarkdownSimpleServer.HmMarkdownSimpleServer 内の「OnReleaseObject」も実行される。
+        }
+    }
+
+
+EXIT_IF_FILENAME_IS_EMPTY:
+
+    // 無題なら何もしない。マクロの一番先頭ではなく、この位置にある理由は、
+    // 「１つ前に使っていたPHPサーバーオブジェクトの破棄」はしておきたいため、
+    if (filename2 == "") {
+        endmacro;
+    }
+
+
+
+CREATE_MARKDOWN_SERVER_OBJECT:
+
+    // PHPサーバー関連オブジェクトの生成。秀丸のファイル名変更や、ファイル保存による更新、PHPサーバーのプロセスオブジェクトを管理する。
+    #MARKDOWN_SERVER_COM = createobject( currentmacrodirectory + @"\HmMarkdownSimpleServer.dll", "HmMarkdownSimpleServer.HmMarkdownSimpleServer");
+
+    // 「この秀丸プロセス」内でのオブジェクト番号を記憶しておく
+    setstaticvariable "HmMarkdownSimpleServerLastObj", str(#MARKDOWN_SERVER_COM), 2; // 
+
+    // マクロが終了してもオブジェクトは維持。シングルトンにするため、マクロの「CLEAR_OLD_MARKDOWN_SERVER_OBJECT:」で古い起動は掃除している。
+    keepobject #MARKDOWN_SERVER_COM, 1;
+
+    // 掃除される際(releaseobjectやプロセスを閉じた、何か秀丸レベルで致命的マクロエラーとなった際)に呼び出される
+    setcomdetachmethod #MARKDOWN_SERVER_COM, "OnReleaseObject";
+
+
+
+LAUNCH_MARKDOWN_SERVER:
+
+    // 各種情報を基に、PHPを簡易サーバーとして起動
+    $RELATIVE_URI = member(#MARKDOWN_SERVER_COM, "Launch");
+
+
+SHOW_HTTP_URL_IN_BROWSER_PANE:
+
+    // ブラウザ枠で表示
+    showbrowserpane 1, #TARGET_BROWSER_PANE;
+    // 対応するポートでPHPサーバーが立っているので、そのURLをブラウザ枠に表示。
+    setbrowserpaneurl sprintf("file://%s", $RELATIVE_URI), #TARGET_BROWSER_PANE;
+
+
+
+WEBVIEW2_ASYNC:
+    jsmode "WebView2\\HmMarkdownSimpleServer";
+    execjs currentmacrodirectory + @"\HmMarkdownSimpleServerAsync.js";

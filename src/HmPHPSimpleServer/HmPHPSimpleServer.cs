@@ -232,6 +232,7 @@ namespace HmPHPSimpleServer
 
                     string command = $"setbrowserpaneurl \"about:blank\", {targetBrowserPane};";
 
+                    isMustReflesh = false;
                     // リフレッシュする
                     Hm.Macro.Exec.Eval(command);
                     Destroy();
@@ -245,6 +246,7 @@ namespace HmPHPSimpleServer
                     // 同期マクロ実行中ではない
                     if (!Hm.Macro.IsExecuting && !String.IsNullOrEmpty(currFileFullPath))
                     {
+                        isMustReflesh = false;
 
                         // 自分自身を実行
                         Hm.Macro.Exec.File(currMacroFilePath);
