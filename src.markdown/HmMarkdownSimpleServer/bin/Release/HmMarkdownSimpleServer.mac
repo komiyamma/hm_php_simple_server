@@ -55,6 +55,7 @@ MAKE_HTML_TEMPLATE:
     """"""""""""""""""""""""""""""""""""""""
     <html>
     <head>
+    <meta charset="UTF-8">
     <link rel="stylesheet" href="$CSS_URI_ABSOLUTE">
     <base href="$BASE_HREF">
     </head>

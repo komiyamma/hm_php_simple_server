@@ -296,7 +296,6 @@ public class HmMarkdownSimpleServer
 
         }
 
-
         return 0;
     }
 }
