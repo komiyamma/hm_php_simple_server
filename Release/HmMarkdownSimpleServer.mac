@@ -7,7 +7,7 @@
 
 SET_MARKDOWN_SERVER_INFO:
 
-    $TARGET_RENDER_PANE = "HmMarkdownSimpleServer#" + str(hidemaruhandle(0));              // レンダリング枠
+    $TARGET_RENDER_PANE = "_each";              // ブラウザの個別枠
 
 
 RELEASE_OLD_MARKDOWN_SERVER_OBJECT:

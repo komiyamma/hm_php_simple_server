@@ -232,7 +232,7 @@ public class HmMarkdownSimpleServer
 
             var html = html_template;
             html = html.Replace("$CSS_URI_ABSOLUTE", cssHref);
-            html = html.Replace("$BASE_HREF", baseHref);
+            html = html.Replace("$BASE_HREF", baseHref + "/"); // この「/」を末尾に付けるのは絶対必須
             html = html.Replace("$HTML", markdown_html);
             File.WriteAllText(tempFileFullPath, html);
         }

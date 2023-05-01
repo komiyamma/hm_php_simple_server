@@ -17,8 +17,7 @@ function tickMethod() {
         return;
     }
     if (isFileLastModifyUpdated()) {
-        console.log("ロケーションリロード");
-        renderpanecommand({
+        browserpanecommand({
             target: target_browser_pane,
             url: "javascript:location.reload();"
         });
@@ -47,13 +46,13 @@ function tickMethod() {
         }
         try {
             if (perY == 0) {
-                renderpanecommand({
+                browserpanecommand({
                     target: target_browser_pane,
                     url: "javascript:window.scrollTo(0, 0);"
                 });
             }
             if (perY >= 1) {
-                renderpanecommand({
+                browserpanecommand({
                     target: target_browser_pane,
                     url: "javascript:window.scrollTo(0, (document.body.scrollHeight)*(2));"
                 });
@@ -144,7 +143,7 @@ let paneArg = {
     url: relative_uri,
     show: 1
 };
-renderpanecommand(paneArg);
+browserpanecommand(paneArg);
 initVariable();
 stopIntervalTick(timerHandle);
 tickMethod();
