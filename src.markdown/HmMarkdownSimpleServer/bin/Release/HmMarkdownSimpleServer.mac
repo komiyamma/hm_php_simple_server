@@ -63,10 +63,8 @@ MAKE_HTML_TEMPLATE:
     <link rel="stylesheet" href="$CSS_URI_ABSOLUTE">
     <base href="$BASE_HREF">
     </head>
-    <body>
-    <div class="markdown-body">
+    <body class="markdown-body">
     $HTML
-    </div>
     <br>
     </body>
     </html>

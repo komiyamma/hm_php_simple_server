@@ -4,6 +4,14 @@ var relative_uri = getVar("$RELATIVE_URI");
 if (typeof (timerHandle) === "undefined") {
     var timerHandle = 0; // 時間を跨いで共通利用するので、varで
 }
+function stopIntervalTick(timerHandle) {
+    if (timerHandle) {
+        hidemaru.clearInterval(timerHandle);
+    }
+}
+function createIntervalTick(func) {
+    return hidemaru.setInterval(func, 1000);
+}
 function tickMethod() {
     if (hidemaru.isMacroExecuting()) {
         return;
@@ -73,14 +81,6 @@ function getChangeYPos() {
     }
     return [isDiff, posY, allLineCount];
 }
-function stopIntervalTick(timerHandle) {
-    if (timerHandle) {
-        hidemaru.clearInterval(timerHandle);
-    }
-}
-function createIntervalTick(func) {
-    return hidemaru.setInterval(func, 1000);
-}
 let preUpdateCount = 0;
 let lastText = "";
 function getAllLineCount() {
@@ -114,8 +114,11 @@ function getCurCursorYPosFromMousePos() {
     return pos[0];
 }
 let lastFileModified = 0;
-let fso = hidemaru.createObject("Scripting.FileSystemObject");
+let fso = null;
 function isFileLastModifyUpdated() {
+    if (fso == null) {
+        fso = hidemaru.createObject("Scripting.FileSystemObject");
+    }
     let diff = false;
     let filepath = hidemaru.getFileFullPath();
     if (filepath != "") {
@@ -128,12 +131,21 @@ function isFileLastModifyUpdated() {
     }
     return diff;
 }
+function initVariable() {
+    lastPosY = 0;
+    lastAllLineCount = 0;
+    preUpdateCount = 0;
+    lastText = "";
+    lastFileModified = 0;
+    fso = null;
+}
 let paneArg = {
     target: target_browser_pane,
     url: relative_uri,
     show: 1
 };
 renderpanecommand(paneArg);
+initVariable();
 stopIntervalTick(timerHandle);
 tickMethod();
 timerHandle = createIntervalTick(tickMethod);

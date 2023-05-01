@@ -1,11 +1,21 @@
 /// <reference path="hm_jsmode.d.ts" />
 
 var target_browser_pane: string = getVar("$TARGET_RENDER_PANE") as string;
-var relative_uri = getVar("$RELATIVE_URI") as string;
+var relative_uri: string = getVar("$RELATIVE_URI") as string;
 
 if (typeof(timerHandle) === "undefined") {
     var timerHandle: number = 0; // 時間を跨いで共通利用するので、varで
 }
+
+function stopIntervalTick(timerHandle: number): void {
+    if (timerHandle) {
+        hidemaru.clearInterval(timerHandle);
+    }
+}
+function createIntervalTick(func): number {
+    return hidemaru.setInterval(func, 1000);
+}
+
 function tickMethod(): void {
     if (hidemaru.isMacroExecuting()) {
         return;
@@ -63,8 +73,9 @@ function tickMethod(): void {
         }
     }
 }
-let lastPosY = 0;
-let lastAllLineCount = 0;
+
+let lastPosY: number = 0;
+let lastAllLineCount: number = 0;
 function getChangeYPos(): [boolean, number, number] {
     let isDiff = false;
     let posY = getCurCursorYPos();
@@ -79,14 +90,6 @@ function getChangeYPos(): [boolean, number, number] {
         isDiff = true;
     }
     return [isDiff, posY, allLineCount];
-}
-function stopIntervalTick(timerHandle: number): void {
-    if (timerHandle) {
-        hidemaru.clearInterval(timerHandle);
-    }
-}
-function createIntervalTick(func): number {
-    return hidemaru.setInterval(func, 1000);
 }
 
 let preUpdateCount: number = 0;
@@ -117,13 +120,17 @@ function getCurCursorYPos(): number {
     let pos = hidemaru.getCursorPos("wcs");
     return pos[0];
 }
+
 function getCurCursorYPosFromMousePos(): number {
     let pos = hidemaru.getCursorPosFromMousePos("wcs");
     return pos[0];
 }
 let lastFileModified: number = 0;
-let fso: any = hidemaru.createObject("Scripting.FileSystemObject");
+let fso: any = null;
 function isFileLastModifyUpdated(): boolean {
+    if (fso == null) {
+        fso = hidemaru.createObject("Scripting.FileSystemObject");
+    }
     let diff: boolean = false;
     let filepath = hidemaru.getFileFullPath();
     if (filepath != "") {
@@ -137,6 +144,17 @@ function isFileLastModifyUpdated(): boolean {
     return diff;
 }
 
+function initVariable(): void {
+    lastPosY = 0;
+    lastAllLineCount = 0;
+
+    preUpdateCount = 0;
+    lastText = "";
+
+    lastFileModified = 0;
+    fso = null;    
+}
+
 let paneArg:IRenderPaneCommandArg = {
     target:target_browser_pane,
     url:relative_uri,
@@ -144,6 +162,7 @@ let paneArg:IRenderPaneCommandArg = {
 };
 renderpanecommand(paneArg);
 
+initVariable();
 stopIntervalTick(timerHandle);
 tickMethod();
 timerHandle = createIntervalTick(tickMethod);
