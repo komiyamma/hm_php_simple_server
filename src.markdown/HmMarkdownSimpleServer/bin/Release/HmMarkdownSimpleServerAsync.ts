@@ -8,7 +8,7 @@
 
 
 // ブラウザペインのターゲット。個別枠。
-let target_render_pane: string = getVar("$TARGET_RENDERPANE_NAME") as string;
+let target_browser_pane: string = "_each";
 
 // 表示するべき一時ファイルのURL
 let absolute_uri: string = getVar("$ABSOLUTE_URI") as string;
@@ -29,7 +29,6 @@ function createIntervalTick(func): number {
     return hidemaru.setInterval(func, 1000);
 }
 
-debuginfo(2);
 // Tick。
 function tickMethod(): void {
     // (他の)マクロ実行中は安全のため横槍にならないように何もしない。
@@ -39,8 +38,8 @@ function tickMethod(): void {
     // ファイルが更新されていたら、ブラウザをリロードする。
     // 実際には、ファイルが更新されると、先に「Markdown」⇒「html」化したTempファイルの内容が更新されるので、ブラウザにリロード命令を出しておくことで更新できる。
     if (isFileLastModifyUpdated()) {
-        renderpanecommand({
-            target: target_render_pane,
+        browserpanecommand({
+            target: target_browser_pane,
             url: "javascript:location.reload();"
         });
     }
@@ -70,16 +69,16 @@ function tickMethod(): void {
         try {
             // perYが0以下なら、ブラウザは先頭へ
             if (perY <= 0) {
-                renderpanecommand({
-                    target: target_render_pane,
+                browserpanecommand({
+                    target: target_browser_pane,
                     url: "javascript:window.scrollTo(0, 0);"
                 });
             }
 
             // perYが1以上なら、ブラウザは末尾へ
             if (perY >= 1) {
-                renderpanecommand({
-                    target: target_render_pane,
+                browserpanecommand({
+                    target: target_browser_pane,
                     url: "javascript:window.scrollTo(0, (document.body.scrollHeight)*(2));" // 微妙に末尾にならなかったりするので、2倍している。
                 });
             }
@@ -207,15 +206,13 @@ function initVariable(): void {
     fso = null;
 }
 
-// targetは.macから引き継ぎ、url も .mac から引き継ぎ
-let paneArg: IRenderPaneCommandArg = {
-    target: target_render_pane,
-    url: absolute_uri,
-    show: 1
-};
 
 // 表示
-renderpanecommand(paneArg);
+browserpanecommand({
+    target: target_browser_pane,
+    url: absolute_uri,
+    show: 1
+});
 
 // 初期化
 initVariable();

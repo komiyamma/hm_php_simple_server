@@ -1,6 +1,12 @@
 /// <reference path="hm_jsmode.d.ts" />
+/*
+ * HmMarkdownSimpleServer v1.0.0.1
+ *
+ * Copyright (c) 2023 Akitsugu Komiyama
+ * under the MIT License
+ */
 // ブラウザペインのターゲット。個別枠。
-let target_render_pane = getVar("$TARGET_RENDERPANE_NAME");
+let target_browser_pane = "_each";
 // 表示するべき一時ファイルのURL
 let absolute_uri = getVar("$ABSOLUTE_URI");
 if (typeof (timerHandle) === "undefined") {
@@ -16,7 +22,6 @@ function stopIntervalTick(timerHandle) {
 function createIntervalTick(func) {
     return hidemaru.setInterval(func, 1000);
 }
-debuginfo(2);
 // Tick。
 function tickMethod() {
     // (他の)マクロ実行中は安全のため横槍にならないように何もしない。
@@ -26,8 +31,8 @@ function tickMethod() {
     // ファイルが更新されていたら、ブラウザをリロードする。
     // 実際には、ファイルが更新されると、先に「Markdown」⇒「html」化したTempファイルの内容が更新されるので、ブラウザにリロード命令を出しておくことで更新できる。
     if (isFileLastModifyUpdated()) {
-        renderpanecommand({
-            target: target_render_pane,
+        browserpanecommand({
+            target: target_browser_pane,
             url: "javascript:location.reload();"
         });
     }
@@ -52,15 +57,15 @@ function tickMethod() {
         try {
             // perYが0以下なら、ブラウザは先頭へ
             if (perY <= 0) {
-                renderpanecommand({
-                    target: target_render_pane,
+                browserpanecommand({
+                    target: target_browser_pane,
                     url: "javascript:window.scrollTo(0, 0);"
                 });
             }
             // perYが1以上なら、ブラウザは末尾へ
             if (perY >= 1) {
-                renderpanecommand({
-                    target: target_render_pane,
+                browserpanecommand({
+                    target: target_browser_pane,
                     url: "javascript:window.scrollTo(0, (document.body.scrollHeight)*(2));" // 微妙に末尾にならなかったりするので、2倍している。
                 });
             }
@@ -171,14 +176,12 @@ function initVariable() {
     lastFileModified = 0;
     fso = null;
 }
-// targetは.macから引き継ぎ、url も .mac から引き継ぎ
-let paneArg = {
-    target: target_render_pane,
+// 表示
+browserpanecommand({
+    target: target_browser_pane,
     url: absolute_uri,
     show: 1
-};
-// 表示
-renderpanecommand(paneArg);
+});
 // 初期化
 initVariable();
 // 前回のが残っているかもしれないので、止める
