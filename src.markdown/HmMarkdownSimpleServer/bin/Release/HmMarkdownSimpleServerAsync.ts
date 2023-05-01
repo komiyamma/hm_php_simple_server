@@ -1,4 +1,4 @@
-/// <reference path="hm_jsmode.d.ts" />
+/// <reference path="types/hm_jsmode.d.ts" />
 /*
  * HmMarkdownSimpleServer v1.0.0.1
  *
@@ -131,7 +131,7 @@ function getAllLineCount(): number {
         preUpdateCount = updateCount;
 
         // テキスト全体から
-        let lastText = hidemaru.getTotalText();
+        let lastText : string | undefined = hidemaru.getTotalText();
 
         // 失敗することがあるらしい...
         if (lastText == undefined) {
