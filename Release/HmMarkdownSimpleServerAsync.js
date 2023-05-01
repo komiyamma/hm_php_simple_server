@@ -1,4 +1,4 @@
-/// <reference path="hm_jsmode.d.ts" />
+/// <reference path="types/hm_jsmode.d.ts" />
 /*
  * HmMarkdownSimpleServer v1.0.0.1
  *
@@ -7,7 +7,6 @@
  */
 // ブラウザペインのターゲット。個別枠。
 let target_browser_pane = "_each";
-
 // 表示するべき一時ファイルのURL
 let absolute_uri = getVar("$ABSOLUTE_URI");
 if (typeof (timerHandle) === "undefined") {
