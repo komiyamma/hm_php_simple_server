@@ -26,7 +26,6 @@ function tickMethod() {
     // ファイルが更新されていたら、ブラウザをリロードする。
     // 実際には、ファイルが更新されると、先に「Markdown」⇒「html」化したTempファイルの内容が更新されるので、ブラウザにリロード命令を出しておくことで更新できる。
     if (isFileLastModifyUpdated()) {
-        console.log("リフレッシュ");
         renderpanecommand({
             target: target_render_pane,
             url: "javascript:location.reload();"
@@ -146,11 +145,19 @@ function isFileLastModifyUpdated() {
     // 無題になってたらこれやらない。
     let filepath = hidemaru.getFileFullPath();
     if (filepath != "") {
-        let f = fso.GetFile(absolute_uri);
-        let m = f.DateLastModified;
-        if (m != lastFileModified) {
-            diff = true;
-            lastFileModified = m;
+        try {
+            // 編集しているファイルではなく、Tempファイルの方のファイルが更新されてるかが重要。
+            let f = fso.GetFile(absolute_uri);
+            let m = f.DateLastModified;
+            if (m != lastFileModified) {
+                diff = true;
+                lastFileModified = m;
+            }
+        }
+        catch (e) {
+            // エラーならアウトプット枠に
+            let outdll = hidemaru.loadDll("HmOutputPane.dll");
+            outdll.dllFuncW.OutputW(hidemaru.getCurrentWindowHandle(), `${e}\r\n`);
         }
     }
     return diff;

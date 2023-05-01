@@ -59,7 +59,7 @@ public class HmMarkdownSimpleServer
 
             CreateTaskMonitoringFilePath();
 
-            return new Uri(tempFileFullPath).AbsoluteUri;
+            return tempFileFullPath; // new Uri(tempFileFullPath).AbsoluteUri;
         }
         catch (Exception e)
         {
