@@ -31,7 +31,7 @@ public class HmMarkdownSimpleServer
 
     int darkmode = 0;
 
-    // PHPデーモンのスタート
+    // Markdon処理のスタート
     public string Launch(string strPathCSS = "")
     {
         try

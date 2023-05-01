@@ -11,7 +11,7 @@ function updateMethod() {
         allLineCount = 1;
     }
     if (isDiff && posY > 0 && allLineCount > 0) {
-        if (posY < 3) { // 最初の行まであと3行程度なのであれば、最初にいる扱いにする。
+        if (posY <= 3) { // 最初の行まであと3行程度なのであれば、最初にいる扱いにする。
             posY = 0;
         }
         if (allLineCount - posY < 3) {
@@ -70,11 +70,27 @@ function createIntervalTick(func) {
     timerHandle = hidemaru.setInterval(func, 1000);
     return timerHandle;
 }
+
+let preUpdateCount = 0;
+let lastText = "";
 function getAllLineCount() {
+    let updateCount = hidemaru.updateCount();
+    if (
     let text = hidemaru.getTotalText();
-    let cnt = text.match(/\n/g);
-    if (cnt) {
-        return cnt.length;
+    if (previousTotalText != text) {
+        previousTotalText = text;
+    }
+    text = text.replace(/\r/g, "");
+    let lines = text.split("\n");
+    if (lines) {
+	    let index = lines.length-1;
+	    while(index >= 1) {
+	        if (lines[index] != "") {
+	            break;
+	        }
+	        index--;
+	    }
+        return index + 1; // lineno相当に直す
     }
     else {
         return 1;
