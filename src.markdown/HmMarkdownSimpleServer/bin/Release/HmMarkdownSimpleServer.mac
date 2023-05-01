@@ -5,10 +5,9 @@
  * under the MIT License
  */
 
-SET_MARKDOWN_SERVER_INFO:
+SET_TARGET_RENDERPANE_NAME:
 
-    $TARGET_RENDER_PANE = "_each";              // ブラウザの個別枠
-
+    $TARGET_RENDERPANE_NAME = "HmMarkdownSimpleServer#" + str(hidemaruhandle(0));
 
 RELEASE_OLD_MARKDOWN_SERVER_OBJECT:
 
@@ -74,7 +73,7 @@ MAKE_HTML_TEMPLATE:
 LAUNCH_MARKDOWN_SERVER:
 
     // 各種情報を基に、PHPを簡易サーバーとして起動
-    $RELATIVE_URI = member(#MARKDOWN_SERVER_COM, "Launch", $HTML_TEMPLATE);
+    $ABSOLUTE_URI = member(#MARKDOWN_SERVER_COM, "Launch", $HTML_TEMPLATE);
 
 
 WEBVIEW2_ASYNC:

@@ -192,7 +192,7 @@ public class HmMarkdownSimpleServer
             if (isMustReflesh)
             {
                 // 同期マクロ実行中ではない
-                if (!Hm.Macro.IsExecuting && !String.IsNullOrEmpty(currFileFullPath))
+                if (!String.IsNullOrEmpty(currFileFullPath))
                 {
                     CreateTempFile(currFileFullPath);
 
