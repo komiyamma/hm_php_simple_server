@@ -6,9 +6,8 @@
  * under the MIT License
  */
 
-
 // ブラウザペインのターゲット。個別枠。
-let target_browser_pane: string = "_each";
+let target_browser_pane: "_each" = "_each";
 
 // 表示するべき一時ファイルのURL
 let absolute_uri: string = getVar("$ABSOLUTE_URI") as string;

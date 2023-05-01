@@ -5,10 +5,6 @@
  * under the MIT License
  */
 
-SET_TARGET_RENDERPANE_NAME:
-
-    $TARGET_RENDERPANE_NAME = "HmMarkdownSimpleServer#" + str(hidemaruhandle(0));
-
 RELEASE_OLD_MARKDOWN_SERVER_OBJECT:
 
     // 「この秀丸プロセス」内でのオブジェクト番号を取り出す
