@@ -14,3 +14,11 @@ G:\repogitory\hm_php_simple_server\src.markdown\HmMarkdownSimpleServer\HmMarkdow
 G:\repogitory\hm_php_simple_server\src.markdown\HmMarkdownSimpleServer\HmMarkdownSimpleServer\obj\Release\HmMarkdownSimpleServer.csproj.CoreCompileInputs.cache
 G:\repogitory\hm_php_simple_server\src.markdown\HmMarkdownSimpleServer\HmMarkdownSimpleServer\obj\Release\HmMarkdownSimpleServer.csproj.CopyComplete
 G:\repogitory\hm_php_simple_server\src.markdown\HmMarkdownSimpleServer\HmMarkdownSimpleServer\obj\Release\HmMarkdownSimpleServer.dll
+G:\repogitory\hm_php_simple_server\src.markdown\HmMarkdownSimpleServer\bin\Release\HmMarkdownSimpleServer.dll
+G:\repogitory\hm_php_simple_server\src.markdown\HmMarkdownSimpleServer\bin\Release\Markdig.dll
+G:\repogitory\hm_php_simple_server\src.markdown\HmMarkdownSimpleServer\bin\Release\Markdig.pdb
+G:\repogitory\hm_php_simple_server\src.markdown\HmMarkdownSimpleServer\bin\Release\Markdig.xml
+G:\repogitory\hm_php_simple_server\src.markdown\HmMarkdownSimpleServer\obj\Release\HmMarkdownSimpleServer.csproj.AssemblyReference.cache
+G:\repogitory\hm_php_simple_server\src.markdown\HmMarkdownSimpleServer\obj\Release\HmMarkdownSimpleServer.csproj.CoreCompileInputs.cache
+G:\repogitory\hm_php_simple_server\src.markdown\HmMarkdownSimpleServer\obj\Release\HmMarkdownSimpleServer.csproj.CopyComplete
+G:\repogitory\hm_php_simple_server\src.markdown\HmMarkdownSimpleServer\obj\Release\HmMarkdownSimpleServer.dll

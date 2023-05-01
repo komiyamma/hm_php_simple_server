@@ -7,7 +7,7 @@
 
 SET_MARKDOWN_SERVER_INFO:
 
-    #TARGET_BROWSER_PANE = 2;              // 個別ブラウザ枠:2  共用ブラウザ枠:1   ※使用用途から考えて、原則的には個別ブラウザ枠を強く推奨。
+    $TARGET_RENDER_PANE = "HmMarkdownSimpleServer#" + str(hidemaruhandle(0));              // レンダリング枠
 
 
 RELEASE_OLD_MARKDOWN_SERVER_OBJECT:
@@ -54,19 +54,29 @@ CREATE_MARKDOWN_SERVER_OBJECT:
 
 
 
+MAKE_HTML_TEMPLATE:
+
+    $HTML_TEMPLATE =
+    """"""""""""""""""""""""""""""""""""""""
+    <html>
+    <head>
+    <link rel="stylesheet" href="$CSS_URI_ABSOLUTE">
+    <base href="$BASE_HREF">
+    </head>
+    <body>
+    <div class="markdown-body">
+    $HTML
+    </div>
+    <br>
+    </body>
+    </html>
+    """""""""""""""""""""""""""""""""""""""";
+
+
 LAUNCH_MARKDOWN_SERVER:
 
     // 各種情報を基に、PHPを簡易サーバーとして起動
-    $RELATIVE_URI = member(#MARKDOWN_SERVER_COM, "Launch");
-
-
-SHOW_HTTP_URL_IN_BROWSER_PANE:
-
-    // ブラウザ枠で表示
-    showbrowserpane 1, #TARGET_BROWSER_PANE;
-    // 対応するポートでPHPサーバーが立っているので、そのURLをブラウザ枠に表示。
-    setbrowserpaneurl sprintf("file://%s", $RELATIVE_URI), #TARGET_BROWSER_PANE;
-
+    $RELATIVE_URI = member(#MARKDOWN_SERVER_COM, "Launch", $HTML_TEMPLATE);
 
 
 WEBVIEW2_ASYNC:

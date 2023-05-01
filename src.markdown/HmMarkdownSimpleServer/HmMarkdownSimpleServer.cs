@@ -23,7 +23,6 @@ public class HmMarkdownSimpleServer
     CancellationTokenSource cts;
 
     System.IO.FileSystemWatcher watcher;
-    int targetBrowserPane = 2;
 
     Dictionary<string, TemporaryFile> dic = new Dictionary<string, TemporaryFile>();
 
@@ -31,25 +30,36 @@ public class HmMarkdownSimpleServer
 
     int darkmode = 0;
 
+    string html_template = "";
+
     // Markdon処理のスタート
-    public string Launch(string strPathCSS = "")
+    public string Launch(string htmlTemplate)
     {
         try
         {
             Destroy();
+
+            this.html_template = htmlTemplate;
 
             currMacroFilePath = (String)Hm.Macro.Var["currentmacrofilename"];
             darkmode = (int)(dynamic)Hm.Macro.Var["darkmode"];
 
             string tempFileFullPath = GetTemporaryFileName();
             prevFileFullPath = Hm.Edit.FilePath ?? "";
+
+            isMustReflesh = true;
+            string currFileFullPath = Hm.Edit.FilePath;
+            if (!String.IsNullOrEmpty(currFileFullPath))
+            {
+                CreateTempFile(currFileFullPath);
+            }
+            isMustReflesh = false;
+
             CreateFileWatcher();
 
             CreateTaskMonitoringFilePath();
 
-            isMustReflesh = true;
-
-            return tempFileFullPath;
+            return new Uri(tempFileFullPath).AbsoluteUri;
         }
         catch (Exception e)
         {
@@ -161,11 +171,6 @@ public class HmMarkdownSimpleServer
 
             if (String.IsNullOrEmpty(currFileFullPath))
             {
-
-                string command = $"setbrowserpaneurl \"about:blank\", {targetBrowserPane};";
-
-                // リフレッシュする
-                Hm.Macro.Exec.Eval(command);
                 Destroy();
             }
 
@@ -186,53 +191,52 @@ public class HmMarkdownSimpleServer
 
             if (isMustReflesh)
             {
-
-                // Hm.OutputPane.Output("isMustReflesh");
                 // 同期マクロ実行中ではない
                 if (!Hm.Macro.IsExecuting && !String.IsNullOrEmpty(currFileFullPath))
                 {
-                    try
-                    {
-                        string markdowntext = File.ReadAllText(currFileFullPath);
-
-                        var pipeLine = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
-
-                        string html = Markdig.Markdown.ToHtml(markdowntext, pipeLine);
-                        string tempFileFullPath = GetTemporaryFileName();
-                        string baseDirWin = Path.GetDirectoryName(currFileFullPath);
-                        string baseHref = new Uri(baseDirWin).AbsoluteUri;
-                        string cssHref = "";
-                        if (String.IsNullOrEmpty(strPathCSSWin))
-                        {
-                            string thisDllDirWin = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                            if (darkmode > 0)
-                            {
-                                strPathCSSWin = thisDllDirWin + "\\HmMarkdownSimpleServerDark.css";
-                            }
-                            else
-                            {
-                                strPathCSSWin = thisDllDirWin + "\\HmMarkdownSimpleServerLight.css";
-                            }
-                            // Hm.OutputPane.Output(strPathCSSWin + "\r\n");
-
-                        }
-                        cssHref = new Uri(strPathCSSWin).AbsoluteUri;
-                        // Hm.OutputPane.Output(cssHref + "\r\n");
-                        // <br>を２つ入れてるのは末尾スクロールが微妙に届かないのを防ぐため。
-                        html = "<html><head><link rel='stylesheet' href='"+ cssHref + "'><base href=\"" + baseHref + "/\"></head><body class='markdown-body'>" + html + "<br></body></html>";
-                        File.WriteAllText(tempFileFullPath, html);
-                    }
-                    catch (Exception) { }
+                    CreateTempFile(currFileFullPath);
 
                     isMustReflesh = false;
-
-                    // Hm.OutputPane.Output("refreshbrowserpane");
-
-                    // リフレッシュする
-                    Hm.Macro.Exec.Eval($"refreshbrowserpane {targetBrowserPane};");
                 }
             }
         }
+    }
+
+    private void CreateTempFile(string currFileFullPath)
+    {
+        try
+        {
+            string markdowntext = File.ReadAllText(currFileFullPath);
+
+            var pipeLine = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+
+            string markdown_html = Markdig.Markdown.ToHtml(markdowntext, pipeLine);
+            string tempFileFullPath = GetTemporaryFileName();
+            string baseDirWin = Path.GetDirectoryName(currFileFullPath);
+            string baseHref = new Uri(baseDirWin).AbsoluteUri;
+            string cssHref = "";
+            if (String.IsNullOrEmpty(strPathCSSWin))
+            {
+                string thisDllDirWin = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                if (darkmode > 0)
+                {
+                    strPathCSSWin = thisDllDirWin + "\\HmMarkdownSimpleServerDark.css";
+                }
+                else
+                {
+                    strPathCSSWin = thisDllDirWin + "\\HmMarkdownSimpleServerLight.css";
+                }
+
+            }
+            cssHref = new Uri(strPathCSSWin).AbsoluteUri;
+
+            var html = html_template;
+            html = html.Replace("$CSS_URI_ABSOLUTE", cssHref);
+            html = html.Replace("$BASE_HREF", baseHref);
+            html = html.Replace("$HTML", markdown_html);
+            File.WriteAllText(tempFileFullPath, html);
+        }
+        catch (Exception) { }
     }
 
     private static async Task<CancellationToken> DelayMethod(CancellationToken ct)
