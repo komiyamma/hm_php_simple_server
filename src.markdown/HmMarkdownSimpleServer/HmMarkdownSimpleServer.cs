@@ -185,7 +185,7 @@ public class HmMarkdownSimpleServer
                     isMustReflesh = false;
 
                     // 自分自身を実行
-                     Hm.Macro.Exec.File(currMacroFilePath);
+                    Hm.Macro.Exec.File(currMacroFilePath);
                 }
             }
 
@@ -282,7 +282,10 @@ public class HmMarkdownSimpleServer
         {
             foreach (var item in dic)
             {
-                item.Value.Dispose();
+                try
+                {
+                    item.Value.Dispose();
+                } catch { }
             }
             dic.Clear();
 
