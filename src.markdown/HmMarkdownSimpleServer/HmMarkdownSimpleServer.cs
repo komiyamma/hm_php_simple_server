@@ -39,6 +39,10 @@ public class HmMarkdownSimpleServer
         {
             Destroy();
 
+            _ = Task.Run(() => {
+                HttpMarkdownListener.Start();
+            });
+
             this.html_template = htmlTemplate;
 
             currMacroFilePath = (String)Hm.Macro.Var["currentmacrofilename"];
@@ -58,6 +62,7 @@ public class HmMarkdownSimpleServer
             CreateFileWatcher();
 
             CreateTaskMonitoringFilePath();
+
 
             return tempFileFullPath; // new Uri(tempFileFullPath).AbsoluteUri;
         }
@@ -285,7 +290,8 @@ public class HmMarkdownSimpleServer
                 try
                 {
                     item.Value.Dispose();
-                } catch { }
+                }
+                catch { }
             }
             dic.Clear();
 
@@ -295,6 +301,18 @@ public class HmMarkdownSimpleServer
         {
 
         }
+
+        try
+        {
+            _ = Task.Run(() =>
+            {
+                HttpMarkdownListener.Close();
+            });
+        }
+        catch (Exception)
+        {
+        }
+
 
         return 0;
     }
