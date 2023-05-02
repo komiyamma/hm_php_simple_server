@@ -22,26 +22,6 @@ RELEASE_OLD_MARKDOWN_SERVER_OBJECT:
         }
     }
 
-/*
-RELEASE_OLD_FETCH_SERVER_OBJECT:
-
-    // 「この秀丸プロセス」内でのオブジェクト番号を取り出す
-    $LAST_FETCH_SERVER_COM = getstaticvariable("HmMarkdownFetchServerLastObj", 2);
-
-    // 有効な値があるならば...
-    if ($LAST_FETCH_SERVER_COM != "") {
-        #LAST_FETCH_SERVER_COM = val($LAST_FETCH_SERVER_COM); // 文字列の数字 ⇒ 数値へ
-
-        // 該当の値をToStringして本当に「HmMarkdownListeningServer」のオブジェクトか確認する。
-        // .NET で制作しているものはすべてのオブジェクトがToStringを持つ、それは「名前空間.クラス名」なのでこのような判定が出来る。
-        $OBJ_CLASS_NAME = member(#LAST_FETCH_SERVER_COM, "ToString");
-        if ($OBJ_CLASS_NAME == "HmMarkdownSimpleServer.HmMarkdownListeningServer") {
-            releaseobject(#LAST_FETCH_SERVER_COM); // HmMarkdownSimpleServer.HmMarkdownListeningServer 内の「OnReleaseObject」も実行される。
-        }
-    }
-*/
-
-
 
 EXIT_IF_FILENAME_IS_EMPTY:
 
@@ -78,22 +58,9 @@ MAKE_HTML_TEMPLATE:
     <base href="$BASE_HREF">
     </head>
     <body class="markdown-body">
-    <!-- script>
-    function updateFetch(port) {
-        fetch("http://localhost:" + port)
-        .then(response => response.text())
-        .then(data => {
-            let panel = document.getElementById("update_panel");
-            let new_html = data.toString();
-            if (panel.innerHTML != new_html) {
-                panel.innerHTML = new_html;
-            }
-        })
-        .catch(error => {
-        });
-    }
-    </ !-->
-    <div id="update_panel">$HTML</div>
+    <div id="update_panel">
+    $HTML
+    </div>
     <br>
     </body>
     </html>
@@ -104,27 +71,6 @@ LAUNCH_MARKDOWN_SERVER:
 
     // 各種情報を基に、Markdownを簡易サーバーとして起動
     $ABSOLUTE_URI = member(#MARKDOWN_SERVER_COM, "Launch", $HTML_TEMPLATE);
-
-
-/*
-CREATE_FETCH_SERVER_OBJECT:
-
-    #FETCH_SERVER = createobject(currentmacrodirectory + @"\HmMarkdownSimpleServer.dll", "HmMarkdownSimpleServer.HmMarkdownListeningServer");
-
-    setstaticvariable "HmMarkdownFetchServerLastObj", str(#FETCH_SERVER), 2; // 
-
-    keepobject #FETCH_SERVER, 1;
-
-    setcomdetachmethod #FETCH_SERVER, "OnReleaseObject";
-
-    #PORT = member(#FETCH_SERVER, "Start", 7200, 7300);
-
-    if (#PORT == 0) {
-        // エラーメッセージは、COMのdllの方からアウトプット枠にすでに出てる。
-        endmacro;
-    }
-*/
-
 
 
 WEBVIEW2_ASYNC:

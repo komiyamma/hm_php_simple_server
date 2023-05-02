@@ -46,14 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HmMarkdownListeningServer.cs" />
     <Compile Include="HmMarkdownSimpleServer.cs" />
     <Compile Include="HmNetCOM.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>HmNetCOM.tt</DependentUpon>
     </Compile>
-    <Compile Include="HmUsedPortChecker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TemporaryFile.cs" />
   </ItemGroup>
