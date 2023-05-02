@@ -1,6 +1,6 @@
 /// <reference path="types/hm_jsmode.d.ts" />
 /*
- * HmMarkdownSimpleServer v1.0.0.1
+ * HmMarkdownSimpleServer v1.1.0.1
  *
  * Copyright (c) 2023 Akitsugu Komiyama
  * under the MIT License
@@ -11,6 +11,10 @@ let target_browser_pane: "_each" = "_each";
 
 // 表示するべき一時ファイルのURL
 let absolute_uri: string = getVar("$ABSOLUTE_URI") as string;
+
+// ポート番号
+let port = getVar("#PORT") as number;
+
 
 if (typeof (timerHandle) === "undefined") {
     var timerHandle: number = 0; // 時間を跨いで共通利用するので、varで
@@ -41,6 +45,17 @@ function tickMethod(): void {
             target: target_browser_pane,
             url: "javascript:location.reload();"
         });
+    }
+
+    // テキスト内容が変更になっている時だけ
+    else if (isTotalTextChange()) {
+        browserpanecommand(
+            {
+                target: "_each",
+                url: `javascript:updateFetch(${port})`,
+                show: 1
+            }
+        );
     }
 
     // 何か変化が起きている？ linenoは変化した？ または、全体の行数が変化した？
@@ -89,6 +104,29 @@ function tickMethod(): void {
         }
     }
 }
+
+let lastUpdateCount: number = 0;
+let preTotalText: string = "";
+function isTotalTextChange() {
+    // updateCountで判定することで、テキスト内容の更新頻度を下げる。
+    // getTotalTextを分割したりコネコネするのは、行数が多くなってくるとやや負荷になりやすいので
+    // テキスト更新してないなら、前回の結果を返す。
+    let updateCount = hidemaru.getUpdateCount();
+    // 前回から何も変化していないなら、前回の結果を返す。
+    if (lastUpdateCount == updateCount) {
+        return false;
+    }
+    lastUpdateCount = updateCount;
+
+    let totalText: string | undefined = hidemaru.getTotalText();
+    if (preTotalText == totalText) {
+        return false;
+    }
+    preTotalText = totalText;
+
+    return true;
+}
+
 
 // linenoが変化したか、全体の行数が変化したかを判定する。
 let lastPosY: number = 0;
@@ -193,8 +231,14 @@ function isFileLastModifyUpdated(): boolean {
     return diff;
 }
 
+
+
+
 // 初期化
 function initVariable(): void {
+    lastUpdateCount = 0;
+    preTotalText = "";
+
     lastPosY = 0;
     lastAllLineCount = 0;
 

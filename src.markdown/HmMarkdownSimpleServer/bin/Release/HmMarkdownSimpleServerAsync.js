@@ -1,6 +1,6 @@
 /// <reference path="types/hm_jsmode.d.ts" />
 /*
- * HmMarkdownSimpleServer v1.0.0.1
+ * HmMarkdownSimpleServer v1.1.0.1
  *
  * Copyright (c) 2023 Akitsugu Komiyama
  * under the MIT License
@@ -9,6 +9,8 @@
 let target_browser_pane = "_each";
 // 表示するべき一時ファイルのURL
 let absolute_uri = getVar("$ABSOLUTE_URI");
+// ポート番号
+let port = getVar("#PORT");
 if (typeof (timerHandle) === "undefined") {
     var timerHandle = 0; // 時間を跨いで共通利用するので、varで
 }
@@ -28,12 +30,24 @@ function tickMethod() {
     if (hidemaru.isMacroExecuting()) {
         return;
     }
+
+    /*
     // ファイルが更新されていたら、ブラウザをリロードする。
     // 実際には、ファイルが更新されると、先に「Markdown」⇒「html」化したTempファイルの内容が更新されるので、ブラウザにリロード命令を出しておくことで更新できる。
     if (isFileLastModifyUpdated()) {
         browserpanecommand({
             target: target_browser_pane,
             url: "javascript:location.reload();"
+        });
+    }
+    */
+
+    // テキスト内容が変更になっている時だけ
+    if (isTotalTextChange()) {
+        browserpanecommand({
+            target: "_each",
+            url: `javascript:updateFetch(${port})`,
+            show: 1
         });
     }
     // 何か変化が起きている？ linenoは変化した？ または、全体の行数が変化した？
@@ -76,6 +90,25 @@ function tickMethod() {
             outdll.dllFuncW.OutputW(hidemaru.getCurrentWindowHandle(), `${e}\r\n`);
         }
     }
+}
+let lastUpdateCount = 0;
+let preTotalText = "";
+function isTotalTextChange() {
+    // updateCountで判定することで、テキスト内容の更新頻度を下げる。
+    // getTotalTextを分割したりコネコネするのは、行数が多くなってくるとやや負荷になりやすいので
+    // テキスト更新してないなら、前回の結果を返す。
+    let updateCount = hidemaru.getUpdateCount();
+    // 前回から何も変化していないなら、前回の結果を返す。
+    if (lastUpdateCount == updateCount) {
+        return false;
+    }
+    lastUpdateCount = updateCount;
+    let totalText = hidemaru.getTotalText();
+    if (preTotalText == totalText) {
+        return false;
+    }
+    preTotalText = totalText;
+    return true;
 }
 // linenoが変化したか、全体の行数が変化したかを判定する。
 let lastPosY = 0;
@@ -169,6 +202,8 @@ function isFileLastModifyUpdated() {
 }
 // 初期化
 function initVariable() {
+    lastUpdateCount = 0;
+    preTotalText = "";
     lastPosY = 0;
     lastAllLineCount = 0;
     preUpdateCount = 0;
