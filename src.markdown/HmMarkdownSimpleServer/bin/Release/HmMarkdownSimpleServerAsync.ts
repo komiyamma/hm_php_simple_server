@@ -12,13 +12,9 @@ let target_browser_pane: "_each" = "_each";
 // 表示するべき一時ファイルのURL
 let absolute_uri: string = getVar("$ABSOLUTE_URI") as string;
 
-/*
-// ポート番号
-let port = getVar("#PORT") as number;
-*/
-
+ // 時間を跨いで共通利用するので、varで
 if (typeof (timerHandle) === "undefined") {
-    var timerHandle: number = 0; // 時間を跨いで共通利用するので、varで
+    var timerHandle: number = 0;
 }
 
 // 基本、マクロを実行しなおす度にTickは一度クリア
@@ -48,28 +44,16 @@ function tickMethod(): void {
         });
     }
 
-    /*
-    // テキスト内容が変更になっている時だけ
-    else if (isTotalTextChange()) {
-        browserpanecommand(
-            {
-                target: "_each",
-                url: `javascript:updateFetch(${port})`,
-                show: 1
-            }
-        );
-    }
-    */
-
     // 何か変化が起きている？ linenoは変化した？ または、全体の行数が変化した？
     let [isDiff, posY, allLineCount] = getChangeYPos();
+
     // Zero Division Error回避
     if (allLineCount < 0) {
         allLineCount = 1;
     }
 
-    // 何か変化が起きていて、かつ、linenoが1以上で、かつ、全体の行数が1以上であれば、
-    if (isDiff && posY > 0 && allLineCount > 0) {
+    // 何か変化が起きていて、かつ、linenoが1以上
+    if (isDiff && posY > 0) {
 
         // 最初の行まであと3行程度なのであれば、最初にいる扱いにする。
         if (posY <= 3) {
@@ -81,9 +65,11 @@ function tickMethod(): void {
             posY = allLineCount;
         }
 
-        // perYが0以上1以下になるように正規化する。
-        let perY = posY / allLineCount;
         try {
+
+            // perYが0以上1以下になるように正規化する。
+            let perY = posY / allLineCount;
+
             // perYが0以下なら、ブラウザは先頭へ
             if (perY <= 0) {
                 browserpanecommand({
@@ -107,31 +93,6 @@ function tickMethod(): void {
         }
     }
 }
-
-/*
-let lastUpdateCount: number = 0;
-let preTotalText: string = "";
-function isTotalTextChange() {
-    // updateCountで判定することで、テキスト内容の更新頻度を下げる。
-    // getTotalTextを分割したりコネコネするのは、行数が多くなってくるとやや負荷になりやすいので
-    // テキスト更新してないなら、前回の結果を返す。
-    let updateCount = hidemaru.getUpdateCount();
-    // 前回から何も変化していないなら、前回の結果を返す。
-    if (lastUpdateCount == updateCount) {
-        return false;
-    }
-    lastUpdateCount = updateCount;
-
-    let totalText: string | undefined = hidemaru.getTotalText();
-    if (preTotalText == totalText) {
-        return false;
-    }
-    preTotalText = totalText;
-
-    return true;
-}
-*/
-
 
 // linenoが変化したか、全体の行数が変化したかを判定する。
 let lastPosY: number = 0;
@@ -235,9 +196,6 @@ function isFileLastModifyUpdated(): boolean {
     }
     return diff;
 }
-
-
-
 
 // 初期化
 function initVariable(): void {
