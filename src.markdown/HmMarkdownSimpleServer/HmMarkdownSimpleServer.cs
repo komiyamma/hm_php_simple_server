@@ -39,10 +39,6 @@ public class HmMarkdownSimpleServer
         {
             Destroy();
 
-            _ = Task.Run(() => {
-                HttpMarkdownListener.Start();
-            });
-
             this.html_template = htmlTemplate;
 
             currMacroFilePath = (String)Hm.Macro.Var["currentmacrofilename"];
@@ -301,18 +297,6 @@ public class HmMarkdownSimpleServer
         {
 
         }
-
-        try
-        {
-            _ = Task.Run(() =>
-            {
-                HttpMarkdownListener.Close();
-            });
-        }
-        catch (Exception)
-        {
-        }
-
 
         return 0;
     }

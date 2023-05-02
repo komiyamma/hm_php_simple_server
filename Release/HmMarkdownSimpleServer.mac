@@ -59,19 +59,6 @@ MAKE_HTML_TEMPLATE:
     <link rel="stylesheet" href="$CSS_URI_ABSOLUTE">
     <base href="$BASE_HREF">
     </head>
-
-    <div id="append_plate"></div>
-    <script>
-    fetch('http://locahost:50331')
-    .then(response => response.json())
-    .then(data => {
-        let latest_version = document.getElementById("append_plate");
-        latest_version.innerHTML = "あいうえお";
-    })
-    .catch(error => {
-    });
-    </script>
-
     <body class="markdown-body">
     $HTML
     <br>

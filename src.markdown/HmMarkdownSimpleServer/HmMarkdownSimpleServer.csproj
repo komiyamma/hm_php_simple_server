@@ -46,7 +46,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HmMarkdownLisnerServer.cs" />
     <Compile Include="HmMarkdownSimpleServer.cs" />
     <Compile Include="HmNetCOM.cs">
       <AutoGen>True</AutoGen>
