@@ -12,9 +12,10 @@ let target_browser_pane: "_each" = "_each";
 // 表示するべき一時ファイルのURL
 let absolute_uri: string = getVar("$ABSOLUTE_URI") as string;
 
+/*
 // ポート番号
 let port = getVar("#PORT") as number;
-
+*/
 
 if (typeof (timerHandle) === "undefined") {
     var timerHandle: number = 0; // 時間を跨いで共通利用するので、varで
@@ -47,6 +48,7 @@ function tickMethod(): void {
         });
     }
 
+    /*
     // テキスト内容が変更になっている時だけ
     else if (isTotalTextChange()) {
         browserpanecommand(
@@ -57,6 +59,7 @@ function tickMethod(): void {
             }
         );
     }
+    */
 
     // 何か変化が起きている？ linenoは変化した？ または、全体の行数が変化した？
     let [isDiff, posY, allLineCount] = getChangeYPos();
@@ -105,6 +108,7 @@ function tickMethod(): void {
     }
 }
 
+/*
 let lastUpdateCount: number = 0;
 let preTotalText: string = "";
 function isTotalTextChange() {
@@ -126,6 +130,7 @@ function isTotalTextChange() {
 
     return true;
 }
+*/
 
 
 // linenoが変化したか、全体の行数が変化したかを判定する。
@@ -236,9 +241,10 @@ function isFileLastModifyUpdated(): boolean {
 
 // 初期化
 function initVariable(): void {
+/*
     lastUpdateCount = 0;
     preTotalText = "";
-
+*/
     lastPosY = 0;
     lastAllLineCount = 0;
 

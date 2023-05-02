@@ -22,7 +22,7 @@ RELEASE_OLD_MARKDOWN_SERVER_OBJECT:
         }
     }
 
-
+/*
 RELEASE_OLD_FETCH_SERVER_OBJECT:
 
     // 「この秀丸プロセス」内でのオブジェクト番号を取り出す
@@ -39,23 +39,22 @@ RELEASE_OLD_FETCH_SERVER_OBJECT:
             releaseobject(#LAST_FETCH_SERVER_COM); // HmMarkdownSimpleServer.HmMarkdownListeningServer 内の「OnReleaseObject」も実行される。
         }
     }
-
+*/
 
 
 
 EXIT_IF_FILENAME_IS_EMPTY:
 
     // 無題なら何もしない。マクロの一番先頭ではなく、この位置にある理由は、
-    // 「１つ前に使っていたPHPサーバーオブジェクトの破棄」はしておきたいため、
+    // 「１つ前に使っていたMarkdownサーバーオブジェクトの破棄」はしておきたいため、
     if (filename2 == "") {
         endmacro;
     }
 
 
-
 CREATE_MARKDOWN_SERVER_OBJECT:
 
-    // PHPサーバー関連オブジェクトの生成。秀丸のファイル名変更や、ファイル保存による更新、PHPサーバーのプロセスオブジェクトを管理する。
+    // Markdownサーバー関連オブジェクトの生成。秀丸のファイル名変更や、ファイル保存による更新、Markdownサーバーのプロセスオブジェクトを管理する。
     #MARKDOWN_SERVER_COM = createobject( currentmacrodirectory + @"\HmMarkdownSimpleServer.dll", "HmMarkdownSimpleServer.HmMarkdownSimpleServer");
 
     // 「この秀丸プロセス」内でのオブジェクト番号を記憶しておく
@@ -66,7 +65,6 @@ CREATE_MARKDOWN_SERVER_OBJECT:
 
     // 掃除される際(releaseobjectやプロセスを閉じた、何か秀丸レベルで致命的マクロエラーとなった際)に呼び出される
     setcomdetachmethod #MARKDOWN_SERVER_COM, "OnReleaseObject";
-
 
 
 MAKE_HTML_TEMPLATE:
@@ -80,7 +78,7 @@ MAKE_HTML_TEMPLATE:
     <base href="$BASE_HREF">
     </head>
     <body class="markdown-body">
-    <script>
+    <!-- script>
     function updateFetch(port) {
         fetch("http://localhost:" + port)
         .then(response => response.text())
@@ -94,7 +92,7 @@ MAKE_HTML_TEMPLATE:
         .catch(error => {
         });
     }
-    </script>
+    </ !-->
     <div id="update_panel">$HTML</div>
     <br>
     </body>
@@ -104,11 +102,11 @@ MAKE_HTML_TEMPLATE:
 
 LAUNCH_MARKDOWN_SERVER:
 
-    // 各種情報を基に、PHPを簡易サーバーとして起動
+    // 各種情報を基に、Markdownを簡易サーバーとして起動
     $ABSOLUTE_URI = member(#MARKDOWN_SERVER_COM, "Launch", $HTML_TEMPLATE);
 
 
-
+/*
 CREATE_FETCH_SERVER_OBJECT:
 
     #FETCH_SERVER = createobject(currentmacrodirectory + @"\HmMarkdownSimpleServer.dll", "HmMarkdownSimpleServer.HmMarkdownListeningServer");
@@ -125,7 +123,7 @@ CREATE_FETCH_SERVER_OBJECT:
         // エラーメッセージは、COMのdllの方からアウトプット枠にすでに出てる。
         endmacro;
     }
-
+*/
 
 
 
