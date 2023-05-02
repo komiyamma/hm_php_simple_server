@@ -12,7 +12,7 @@ let target_browser_pane: "_each" = "_each";
 // 表示するべき一時ファイルのURL
 let absolute_uri: string = getVar("$ABSOLUTE_URI") as string;
 
- // 時間を跨いで共通利用するので、varで
+// 時間を跨いで共通利用するので、varで
 if (typeof (timerHandle) === "undefined") {
     var timerHandle: number = 0;
 }
@@ -26,46 +26,46 @@ function stopIntervalTick(timerHandle: number): void {
 
 // Tick作成。
 function createIntervalTick(func): number {
-    return hidemaru.setInterval(func, 1000);
+    return hidemaru.setInterval(func, 500);
 }
 
 // Tick。
 function tickMethod(): void {
-    // (他の)マクロ実行中は安全のため横槍にならないように何もしない。
-    if (hidemaru.isMacroExecuting()) {
-        return;
-    }
-    // ファイルが更新されていたら、ブラウザをリロードする。
-    // 実際には、ファイルが更新されると、先に「Markdown」⇒「html」化したTempファイルの内容が更新されるので、ブラウザにリロード命令を出しておくことで更新できる。
-    if (isFileLastModifyUpdated()) {
-        browserpanecommand({
-            target: target_browser_pane,
-            url: "javascript:location.reload();"
-        });
-    }
-
-    // 何か変化が起きている？ linenoは変化した？ または、全体の行数が変化した？
-    let [isDiff, posY, allLineCount] = getChangeYPos();
-
-    // Zero Division Error回避
-    if (allLineCount < 0) {
-        allLineCount = 1;
-    }
-
-    // 何か変化が起きていて、かつ、linenoが1以上
-    if (isDiff && posY > 0) {
-
-        // 最初の行まであと3行程度なのであれば、最初にいる扱いにする。
-        if (posY <= 3) {
-            posY = 0;
+    try {
+        // (他の)マクロ実行中は安全のため横槍にならないように何もしない。
+        if (hidemaru.isMacroExecuting()) {
+            return;
         }
 
-        // 最後の行まであと3行程度なのであれば、最後の行にいる扱いにする。
-        if (allLineCount - posY < 3) {
-            posY = allLineCount;
+        // ファイルが更新されていたら、ブラウザをリロードする。
+        // 実際には、ファイルが更新されると、先に「Markdown」⇒「html」化したTempファイルの内容が更新されるので、ブラウザにリロード命令を出しておくことで更新できる。
+        if (isFileLastModifyUpdated()) {
+            browserpanecommand({
+                target: target_browser_pane,
+                url: "javascript:location.reload();"
+            });
         }
 
-        try {
+        // 何か変化が起きている？ linenoは変化した？ または、全体の行数が変化した？
+        let [isDiff, posY, allLineCount] = getChangeYPos();
+
+        // Zero Division Error回避
+        if (allLineCount < 0) {
+            allLineCount = 1;
+        }
+
+        // 何か変化が起きていて、かつ、linenoが1以上
+        if (isDiff && posY > 0) {
+
+            // 最初の行まであと3行程度なのであれば、最初にいる扱いにする。
+            if (posY <= 3) {
+                posY = 0;
+            }
+
+            // 最後の行まであと3行程度なのであれば、最後の行にいる扱いにする。
+            if (allLineCount - posY < 3) {
+                posY = allLineCount;
+            }
 
             // perYが0以上1以下になるように正規化する。
             let perY = posY / allLineCount;
@@ -86,11 +86,10 @@ function tickMethod(): void {
                 });
             }
         }
-        catch (e) {
-            // エラーならアウトプット枠に
-            let outdll = hidemaru.loadDll("HmOutputPane.dll");
-            outdll.dllFuncW.OutputW(hidemaru.getCurrentWindowHandle(), `${e}\r\n`);
-        }
+    } catch (e) {
+        // エラーならアウトプット枠に
+        let outdll = hidemaru.loadDll("HmOutputPane.dll");
+        outdll.dllFuncW.OutputW(hidemaru.getCurrentWindowHandle(), `${e}\r\n`);
     }
 }
 
@@ -135,7 +134,7 @@ function getAllLineCount(): number {
         preUpdateCount = updateCount;
 
         // テキスト全体から
-        let lastText : string | undefined = hidemaru.getTotalText();
+        let lastText: string | undefined = hidemaru.getTotalText();
 
         // 失敗することがあるらしい...
         if (lastText == undefined) {
@@ -199,10 +198,10 @@ function isFileLastModifyUpdated(): boolean {
 
 // 初期化
 function initVariable(): void {
-/*
-    lastUpdateCount = 0;
-    preTotalText = "";
-*/
+    /*
+        lastUpdateCount = 0;
+        preTotalText = "";
+    */
     lastPosY = 0;
     lastAllLineCount = 0;
 
@@ -227,7 +226,7 @@ initVariable();
 // 前回のが残っているかもしれないので、止める
 stopIntervalTick(timerHandle);
 
- // １回走らせる
+// １回走らせる
 tickMethod();
 
 // Tick実行

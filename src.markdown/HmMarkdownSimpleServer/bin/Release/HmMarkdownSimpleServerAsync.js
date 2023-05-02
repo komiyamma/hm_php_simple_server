@@ -9,12 +9,9 @@
 let target_browser_pane = "_each";
 // 表示するべき一時ファイルのURL
 let absolute_uri = getVar("$ABSOLUTE_URI");
-/*
-// ポート番号
-let port = getVar("#PORT") as number;
-*/
+// 時間を跨いで共通利用するので、varで
 if (typeof (timerHandle) === "undefined") {
-    var timerHandle = 0; // 時間を跨いで共通利用するので、varで
+    var timerHandle = 0;
 }
 // 基本、マクロを実行しなおす度にTickは一度クリア
 function stopIntervalTick(timerHandle) {
@@ -24,53 +21,41 @@ function stopIntervalTick(timerHandle) {
 }
 // Tick作成。
 function createIntervalTick(func) {
-    return hidemaru.setInterval(func, 1000);
+    return hidemaru.setInterval(func, 500);
 }
 // Tick。
 function tickMethod() {
-    // (他の)マクロ実行中は安全のため横槍にならないように何もしない。
-    if (hidemaru.isMacroExecuting()) {
-        return;
-    }
-    // ファイルが更新されていたら、ブラウザをリロードする。
-    // 実際には、ファイルが更新されると、先に「Markdown」⇒「html」化したTempファイルの内容が更新されるので、ブラウザにリロード命令を出しておくことで更新できる。
-    if (isFileLastModifyUpdated()) {
-        browserpanecommand({
-            target: target_browser_pane,
-            url: "javascript:location.reload();"
-        });
-    }
-    /*
-    // テキスト内容が変更になっている時だけ
-    else if (isTotalTextChange()) {
-        browserpanecommand(
-            {
-                target: "_each",
-                url: `javascript:updateFetch(${port})`,
-                show: 1
+    try {
+        // (他の)マクロ実行中は安全のため横槍にならないように何もしない。
+        if (hidemaru.isMacroExecuting()) {
+            return;
+        }
+        // ファイルが更新されていたら、ブラウザをリロードする。
+        // 実際には、ファイルが更新されると、先に「Markdown」⇒「html」化したTempファイルの内容が更新されるので、ブラウザにリロード命令を出しておくことで更新できる。
+        if (isFileLastModifyUpdated()) {
+            browserpanecommand({
+                target: target_browser_pane,
+                url: "javascript:location.reload();"
+            });
+        }
+        // 何か変化が起きている？ linenoは変化した？ または、全体の行数が変化した？
+        let [isDiff, posY, allLineCount] = getChangeYPos();
+        // Zero Division Error回避
+        if (allLineCount < 0) {
+            allLineCount = 1;
+        }
+        // 何か変化が起きていて、かつ、linenoが1以上
+        if (isDiff && posY > 0) {
+            // 最初の行まであと3行程度なのであれば、最初にいる扱いにする。
+            if (posY <= 3) {
+                posY = 0;
             }
-        );
-    }
-    */
-    // 何か変化が起きている？ linenoは変化した？ または、全体の行数が変化した？
-    let [isDiff, posY, allLineCount] = getChangeYPos();
-    // Zero Division Error回避
-    if (allLineCount < 0) {
-        allLineCount = 1;
-    }
-    // 何か変化が起きていて、かつ、linenoが1以上で、かつ、全体の行数が1以上であれば、
-    if (isDiff && posY > 0 && allLineCount > 0) {
-        // 最初の行まであと3行程度なのであれば、最初にいる扱いにする。
-        if (posY <= 3) {
-            posY = 0;
-        }
-        // 最後の行まであと3行程度なのであれば、最後の行にいる扱いにする。
-        if (allLineCount - posY < 3) {
-            posY = allLineCount;
-        }
-        // perYが0以上1以下になるように正規化する。
-        let perY = posY / allLineCount;
-        try {
+            // 最後の行まであと3行程度なのであれば、最後の行にいる扱いにする。
+            if (allLineCount - posY < 3) {
+                posY = allLineCount;
+            }
+            // perYが0以上1以下になるように正規化する。
+            let perY = posY / allLineCount;
             // perYが0以下なら、ブラウザは先頭へ
             if (perY <= 0) {
                 browserpanecommand({
@@ -86,36 +71,13 @@ function tickMethod() {
                 });
             }
         }
-        catch (e) {
-            // エラーならアウトプット枠に
-            let outdll = hidemaru.loadDll("HmOutputPane.dll");
-            outdll.dllFuncW.OutputW(hidemaru.getCurrentWindowHandle(), `${e}\r\n`);
-        }
+    }
+    catch (e) {
+        // エラーならアウトプット枠に
+        let outdll = hidemaru.loadDll("HmOutputPane.dll");
+        outdll.dllFuncW.OutputW(hidemaru.getCurrentWindowHandle(), `${e}\r\n`);
     }
 }
-/*
-let lastUpdateCount: number = 0;
-let preTotalText: string = "";
-function isTotalTextChange() {
-    // updateCountで判定することで、テキスト内容の更新頻度を下げる。
-    // getTotalTextを分割したりコネコネするのは、行数が多くなってくるとやや負荷になりやすいので
-    // テキスト更新してないなら、前回の結果を返す。
-    let updateCount = hidemaru.getUpdateCount();
-    // 前回から何も変化していないなら、前回の結果を返す。
-    if (lastUpdateCount == updateCount) {
-        return false;
-    }
-    lastUpdateCount = updateCount;
-
-    let totalText: string | undefined = hidemaru.getTotalText();
-    if (preTotalText == totalText) {
-        return false;
-    }
-    preTotalText = totalText;
-
-    return true;
-}
-*/
 // linenoが変化したか、全体の行数が変化したかを判定する。
 let lastPosY = 0;
 let lastAllLineCount = 0;
