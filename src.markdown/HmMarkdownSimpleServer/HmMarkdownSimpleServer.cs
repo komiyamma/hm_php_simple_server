@@ -22,6 +22,8 @@ public class HmMarkdownSimpleServer
     Task<string> task;
     CancellationTokenSource cts;
 
+    System.IO.FileSystemWatcher watcher;
+
     Dictionary<string, TemporaryFile> dic = new Dictionary<string, TemporaryFile>();
 
     string strPathCSSWin = "";
@@ -45,14 +47,18 @@ public class HmMarkdownSimpleServer
             string tempFileFullPath = GetTemporaryFileName();
             prevFileFullPath = Hm.Edit.FilePath ?? "";
 
+            isMustReflesh = true;
             string currFileFullPath = Hm.Edit.FilePath;
             if (!String.IsNullOrEmpty(currFileFullPath))
             {
                 CreateTempFile(currFileFullPath);
             }
+            isMustReflesh = false;
+
+
+            CreateFileWatcher();
 
             CreateTaskMonitoringFilePath();
-
 
             return tempFileFullPath; // new Uri(tempFileFullPath).AbsoluteUri;
         }
@@ -62,6 +68,46 @@ public class HmMarkdownSimpleServer
         }
 
         return "";
+    }
+
+    private void CreateFileWatcher()
+    {
+        string filepath = Hm.Edit.FilePath;
+        if (!String.IsNullOrEmpty(filepath))
+        {
+            var directory = Path.GetDirectoryName(filepath);
+            var filename = Path.GetFileName(filepath);
+            watcher = new System.IO.FileSystemWatcher(directory, filename);
+
+            //監視するフィールドの設定
+            watcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.Size);
+
+            //サブディレクトリは監視しない
+            watcher.IncludeSubdirectories = false;
+
+            //監視を開始する
+            watcher.EnableRaisingEvents = true;
+            watcher.Changed += new System.IO.FileSystemEventHandler(watcher_Changed);
+        }
+    }
+
+    private void DestroyFileWatcher()
+    {
+        if (watcher != null)
+        {
+            watcher.Dispose();
+        }
+    }
+
+    bool isMustReflesh = false;
+
+    private void watcher_Changed(object sender, FileSystemEventArgs e)
+    {
+        if (!Hm.Macro.IsExecuting)
+        {
+            isMustReflesh = true;
+            // Hm.OutputPane.Output("watcher_Changed");
+        }
     }
 
 
@@ -138,12 +184,12 @@ public class HmMarkdownSimpleServer
                 // 同期マクロ実行中ではない
                 if (!Hm.Macro.IsExecuting && !String.IsNullOrEmpty(currFileFullPath))
                 {
+                    isMustReflesh = false;
 
                     // 自分自身を実行
                     Hm.Macro.Exec.File(currMacroFilePath);
                 }
             }
-            /*
 
             if (isMustReflesh)
             {
@@ -155,7 +201,6 @@ public class HmMarkdownSimpleServer
                     isMustReflesh = false;
                 }
             }
-            */
         }
     }
 
@@ -216,6 +261,14 @@ public class HmMarkdownSimpleServer
 
     private long Destroy()
     {
+        try
+        {
+            DestroyFileWatcher();
+        }
+        catch (Exception)
+        {
+
+        }
         try
         {
             if (cts != null)

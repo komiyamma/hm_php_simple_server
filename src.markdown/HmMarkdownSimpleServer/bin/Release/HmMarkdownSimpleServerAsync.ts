@@ -13,7 +13,9 @@ let target_browser_pane: "_each" = "_each";
 let absolute_uri: string = getVar("$ABSOLUTE_URI") as string;
 
 // ポート番号
-let port = getVar("#PORT") as number;
+let port: number = getVar("#PORT") as number;
+
+const livemode_max_textlength = 50000;
 
 // 時間を跨いで共通利用するので、varで
 if (typeof (timerHandle) === "undefined") {
@@ -32,6 +34,7 @@ function createIntervalTick(func): number {
     return hidemaru.setInterval(func, 1000);
 }
 
+// sleep 相当。ECMAScript には sleep が無いので。
 function sleep_in_tick(ms) {
     return new Promise(resolve => hidemaru.setTimeout(resolve, ms));
 }
@@ -49,8 +52,9 @@ async function tickMethod(): Promise<void> {
             return;
         }
 
+        let [isChange, Length] = getTotalTextChange();
         // テキスト内容が変更になっている時だけ
-        if (isTotalTextChange()) {
+        if (isChange && Length < livemode_max_textlength) {
             browserpanecommand(
                 {
                     target: "_each",
@@ -60,21 +64,46 @@ async function tickMethod(): Promise<void> {
             );
  
             // コマンド実行したので、interactive か complete になるまで待つ
-            // 0.5秒くらいまつのが限界。それ以上待つと、次のTickが来かねない。
-            for (let i = 0; i < 5; i++) {
-                await sleep_in_tick(100);
+            // 0.6秒くらいまつのが限界。それ以上待つと、次のTickが来かねない。
+            for (let i = 0; i < 3; i++) {
+                await sleep_in_tick(200);
                 let status = browserpanecommand({
                     target: target_browser_pane,
                     get: "readyState"
                 })
 
-                if (status == "interactive" || status == "complete") {
+                if (status == "complete") {
                     break;
                 }
             }
- 
         }
 
+        else {
+            let isUpdate = isFileLastModifyUpdated();
+            if (isUpdate && Length >= livemode_max_textlength - 1000) { // -1000しているのはギリギリ被らないようにするのではなく、LiveViewとFileViewで余裕をもたせる(境界で行ったり来たりしないように)
+                browserpanecommand(
+                    {
+                        target: "_each",
+                        url: "javascript:location.reload()",
+                        show: 1
+                    }
+                );
+
+                // コマンド実行したので、interactive か complete になるまで待つ
+                // 0.6秒くらいまつのが限界。それ以上待つと、次のTickが来かねない。
+                for (let i = 0; i < 3; i++) {
+                    await sleep_in_tick(200);
+                    let status = browserpanecommand({
+                        target: target_browser_pane,
+                        get: "load"
+                    })
+
+                    if (status == "1") {
+                        break;
+                    }
+                }
+            }
+        }
 
         // 何か変化が起きている？ linenoは変化した？ または、全体の行数が変化した？
         let [isDiff, posY, allLineCount] = getChangeYPos();
@@ -104,7 +133,7 @@ async function tickMethod(): Promise<void> {
             if (perY <= 0) {
                 browserpanecommand({
                     target: target_browser_pane,
-                    url: "javascript:window.scrollTo(0, 0);"
+                    url: "javascript:scollToPageBgn();"
                 });
             }
 
@@ -112,7 +141,7 @@ async function tickMethod(): Promise<void> {
             if (perY >= 1) {
                 browserpanecommand({
                     target: target_browser_pane,
-                    url: "javascript:window.scrollTo(0, (document.body.scrollHeight)*(2));" // 微妙に末尾にならなかったりするので、2倍している。
+                    url: "javascript:scollToPageEnd();"
                 });
             }
         }
@@ -213,30 +242,30 @@ function isNotDetectedOperation() {
 }
 
 let lastUpdateCount: number = 0;
-let preTotalText: string = "";
-function isTotalTextChange() {
+let lastTotalText: string = "";
+function getTotalTextChange(): [boolean, number] {
     try {
 
         // updateCountで判定することで、テキスト内容の更新頻度を下げる。
         // getTotalTextを分割したりコネコネするのは、行数が多くなってくるとやや負荷になりやすいので
         // テキスト更新してないなら、前回の結果を返す。
-        let updateCount = hidemaru.getUpdateCount();
+        let updateCount: number = hidemaru.getUpdateCount();
         // 前回から何も変化していないなら、前回の結果を返す。
         if (lastUpdateCount == updateCount) {
-            return false;
+            return [false, lastTotalText.length];
         }
         lastUpdateCount = updateCount;
 
         let totalText: string | undefined = hidemaru.getTotalText();
-        if (preTotalText == totalText) {
-            return false;
+        if (lastTotalText == totalText) {
+            return [false, lastTotalText.length];
         }
-        preTotalText = totalText;
+        lastTotalText = totalText;
 
-        return true;
+        return [true, lastTotalText.length];
     } catch (e) {
     }
-    return false;
+    return [false, 0];
 }
 
 
@@ -330,6 +359,7 @@ function isFileLastModifyUpdated(): boolean {
             // 編集しているファイルではなく、Tempファイルの方のファイルが更新されてるかが重要。
             let f = fso.GetFile(absolute_uri);
             let m = f.DateLastModified;
+            let s = f.Size;
             if (m != lastFileModified) {
                 diff = true;
                 lastFileModified = m;
@@ -345,10 +375,10 @@ function isFileLastModifyUpdated(): boolean {
 
 // 初期化
 function initVariable(): void {
-    /*
-        lastUpdateCount = 0;
-        preTotalText = "";
-    */
+
+    lastUpdateCount = 0;
+    lastTotalText = "";
+
     lastPosY = 0;
     lastAllLineCount = 0;
 

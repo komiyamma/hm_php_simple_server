@@ -49,7 +49,7 @@ public class HmMarkdownListeningServer
         }
         catch (Exception e)
         {
-            Hm.OutputPane.Output(e.Message + "\r\n");
+            // Hm.OutputPane.Output(e.Message + "\r\n");
         }
 
         return port;
@@ -124,7 +124,7 @@ public class HmMarkdownListeningServer
                 }
                 catch (Exception e)
                 {
-                    Hm.OutputPane.Output(e.Message + "\r\n");
+                    // Hm.OutputPane.Output(e.Message + "\r\n");
                 }
             }
 
@@ -147,7 +147,7 @@ public class HmMarkdownListeningServer
         }
         catch (Exception e)
         {
-            Hm.OutputPane.Output(e.Message + "\r\n");
+            // Hm.OutputPane.Output(e.Message + "\r\n");
         }
         return 1;
     }

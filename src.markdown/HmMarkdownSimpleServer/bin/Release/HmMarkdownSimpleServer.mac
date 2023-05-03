@@ -76,6 +76,12 @@ MAKE_HTML_TEMPLATE:
     </head>
     <body class="markdown-body">
     <script>
+    function scollToPageBgn() {
+        window.location.href = "#the_bgn_line_of_markdown_page"
+    }
+    function scollToPageEnd() {
+        window.location.href = "#the_end_line_of_markdown_page"
+    }
     function updateFetch(port) {
         try {
             fetch("http://localhost:" + port)
@@ -94,8 +100,10 @@ MAKE_HTML_TEMPLATE:
         }
     }
     </script>
+    <a name="the_bgn_line_of_markdown_page">
     <div id="update_panel">$HTML</div>
     <br>
+    <a name="the_end_line_of_markdown_page">
     </body>
     </html>
     """""""""""""""""""""""""""""""""""""""";
