@@ -128,7 +128,7 @@ CREATE_FETCH_SERVER_OBJECT:
 
 LAUNCH_MARKDOWN_FETCH_SERVER:
 
-    #PORT = member(#FETCH_SERVER, "Start", 7200, 7300);
+    #PORT = member(#FETCH_SERVER, "Start", 7201, 7300);
 
     if (#PORT == 0) {
         // エラーメッセージは、COMのdllの方からアウトプット枠にすでに出てる。

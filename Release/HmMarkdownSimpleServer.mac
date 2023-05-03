@@ -76,6 +76,12 @@ MAKE_HTML_TEMPLATE:
     </head>
     <body class="markdown-body">
     <script>
+    function scollToPageBgn() {
+        window.location.href = "#the_bgn_line_of_markdown_page"
+    }
+    function scollToPageEnd() {
+        window.location.href = "#the_end_line_of_markdown_page"
+    }
     function updateFetch(port) {
         try {
             fetch("http://localhost:" + port)
@@ -94,7 +100,9 @@ MAKE_HTML_TEMPLATE:
         }
     }
     </script>
+    <a name="the_bgn_line_of_markdown_page">
     <div id="update_panel">$HTML</div>
+    <a name="the_end_line_of_markdown_page">
     <br>
     </body>
     </html>
@@ -120,7 +128,7 @@ CREATE_FETCH_SERVER_OBJECT:
 
 LAUNCH_MARKDOWN_FETCH_SERVER:
 
-    #PORT = member(#FETCH_SERVER, "Start", 7200, 7300);
+    #PORT = member(#FETCH_SERVER, "Start", 7201, 7300);
 
     if (#PORT == 0) {
         // エラーメッセージは、COMのdllの方からアウトプット枠にすでに出てる。

@@ -11,7 +11,7 @@ let target_browser_pane = "_each";
 let absolute_uri = getVar("$ABSOLUTE_URI");
 // ポート番号
 let port = getVar("#PORT");
-const livemode_max_textlength = 30000;
+const livemode_max_textlength = 50000;
 // 時間を跨いで共通利用するので、varで
 if (typeof (timerHandle) === "undefined") {
     var timerHandle = 0;
@@ -114,7 +114,7 @@ async function tickMethod() {
             if (perY >= 1) {
                 browserpanecommand({
                     target: target_browser_pane,
-                    url: "javascript:window.scrollTo(0, (document.body.scrollHeight)*(2));" // 微妙に末尾にならなかったりするので、2倍している。
+                    url: "javascript:window.scrollTo(0, (document.body.scrollHeight)*(100));" // 微妙に末尾にならなかったりするので、100倍している。
                 });
             }
         }

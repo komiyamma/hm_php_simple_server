@@ -27,8 +27,8 @@ SET_PHP_SERVER_INFO:
                                            // 通常はこのまま空白でOK。このマクロに対して引数として渡すことが出来る。
                                            // 「execmacroで引数付き」やブックマークの「mac:"****\\HmPHPSimpleServer.mac" "C:\test"」といったように使用することが出来る。
 
-    #BGN_PORT = 50001;                     // サーバー用に利用する 最低のポート番号
-    #END_PORT = 50300;                     // サーバー用に利用する 最大のポート番号
+    #BGN_PORT = 7201;                     // サーバー用に利用する 最低のポート番号
+    #END_PORT = 7300;                     // サーバー用に利用する 最大のポート番号
 
 
 RELEASE_OLD_PHP_SERVER_OBJECT:
