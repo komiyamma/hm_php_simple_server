@@ -9,6 +9,8 @@
 let target_browser_pane = "_each";
 // 表示するべき一時ファイルのURL
 let absolute_uri = getVar("$ABSOLUTE_URI");
+// ポート番号
+let port = getVar("#PORT");
 // 時間を跨いで共通利用するので、varで
 if (typeof (timerHandle) === "undefined") {
     var timerHandle = 0;
@@ -26,7 +28,6 @@ function createIntervalTick(func) {
 function sleep_in_tick(ms) {
     return new Promise(resolve => hidemaru.setTimeout(resolve, ms));
 }
-debuginfo(2);
 // Tick。
 async function tickMethod() {
     try {
@@ -38,21 +39,22 @@ async function tickMethod() {
         if (isNotDetectedOperation()) {
             return;
         }
-        // ファイルが更新されていたら、ブラウザをリロードする。
-        // 実際には、ファイルが更新されると、先に「Markdown」⇒「html」化したTempファイルの内容が更新されるので、ブラウザにリロード命令を出しておくことで更新できる。
-        if (isFileLastModifyUpdated()) {
+        // テキスト内容が変更になっている時だけ
+        if (isTotalTextChange()) {
             browserpanecommand({
-                target: target_browser_pane,
-                url: "javascript:location.reload();"
+                target: "_each",
+                url: `javascript:updateFetch(${port})`,
+                show: 1
             });
-            for (let i = 0; i < 10; i++) {
+            // コマンド実行したので、interactive か complete になるまで待つ
+            // 0.5秒くらいまつのが限界。それ以上待つと、次のTickが来かねない。
+            for (let i = 0; i < 5; i++) {
                 await sleep_in_tick(100);
                 let status = browserpanecommand({
                     target: target_browser_pane,
                     get: "readyState"
                 });
                 if (status == "interactive" || status == "complete") {
-                    console.log(status);
                     break;
                 }
             }
@@ -178,6 +180,30 @@ function isNotDetectedOperation() {
     let during_hidemaru_queue = istatus & 0x00040000;
     if (during_hidemaru_queue) {
         // console.log("during_hidemaru_queue" + "\r\n");
+    }
+    return false;
+}
+let lastUpdateCount = 0;
+let preTotalText = "";
+function isTotalTextChange() {
+    try {
+        // updateCountで判定することで、テキスト内容の更新頻度を下げる。
+        // getTotalTextを分割したりコネコネするのは、行数が多くなってくるとやや負荷になりやすいので
+        // テキスト更新してないなら、前回の結果を返す。
+        let updateCount = hidemaru.getUpdateCount();
+        // 前回から何も変化していないなら、前回の結果を返す。
+        if (lastUpdateCount == updateCount) {
+            return false;
+        }
+        lastUpdateCount = updateCount;
+        let totalText = hidemaru.getTotalText();
+        if (preTotalText == totalText) {
+            return false;
+        }
+        preTotalText = totalText;
+        return true;
+    }
+    catch (e) {
     }
     return false;
 }
