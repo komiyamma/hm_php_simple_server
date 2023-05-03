@@ -23,8 +23,12 @@ function stopIntervalTick(timerHandle) {
 function createIntervalTick(func) {
     return hidemaru.setInterval(func, 1000);
 }
+function sleep_in_tick(ms) {
+    return new Promise(resolve => hidemaru.setTimeout(resolve, ms));
+}
+debuginfo(2);
 // Tick。
-function tickMethod() {
+async function tickMethod() {
     try {
         // (他の)マクロ実行中は安全のため横槍にならないように何もしない。
         if (hidemaru.isMacroExecuting()) {
@@ -41,6 +45,17 @@ function tickMethod() {
                 target: target_browser_pane,
                 url: "javascript:location.reload();"
             });
+            for (let i = 0; i < 10; i++) {
+                await sleep_in_tick(100);
+                let status = browserpanecommand({
+                    target: target_browser_pane,
+                    get: "readyState"
+                });
+                if (status == "interactive" || status == "complete") {
+                    console.log(status);
+                    break;
+                }
+            }
         }
         // 何か変化が起きている？ linenoは変化した？ または、全体の行数が変化した？
         let [isDiff, posY, allLineCount] = getChangeYPos();

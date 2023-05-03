@@ -29,8 +29,12 @@ function createIntervalTick(func): number {
     return hidemaru.setInterval(func, 1000);
 }
 
+function sleep_in_tick(ms) {
+    return new Promise(resolve => hidemaru.setTimeout(resolve, ms));
+}
+
 // Tick。
-function tickMethod(): void {
+async function tickMethod(): Promise<void> {
     try {
         // (他の)マクロ実行中は安全のため横槍にならないように何もしない。
         if (hidemaru.isMacroExecuting()) {
@@ -49,6 +53,20 @@ function tickMethod(): void {
                 target: target_browser_pane,
                 url: "javascript:location.reload();"
             });
+
+            // コマンド実行したので、interactive か complete になるまで待つ
+            // 0.5秒くらいまつのが限界。それ以上待つと、次のTickが来かねない。
+            for (let i = 0; i < 10; i++) {
+                await sleep_in_tick(50);
+                let status = browserpanecommand({
+                    target: target_browser_pane,
+                    get: "readyState"
+                })
+
+                if (status == "interactive" || status == "complete") {
+                    break;
+                }
+            }
         }
 
         // 何か変化が起きている？ linenoは変化した？ または、全体の行数が変化した？
