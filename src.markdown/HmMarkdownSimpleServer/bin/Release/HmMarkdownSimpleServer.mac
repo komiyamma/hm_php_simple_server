@@ -102,8 +102,8 @@ MAKE_HTML_TEMPLATE:
     </script>
     <a name="the_bgn_line_of_markdown_page">
     <div id="update_panel">$HTML</div>
-    <br>
     <a name="the_end_line_of_markdown_page">
+    <br>
     </body>
     </html>
     """""""""""""""""""""""""""""""""""""""";
