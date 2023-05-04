@@ -1,6 +1,6 @@
 /// <reference path="types/hm_jsmode.d.ts" />
 /*
- * HmMarkdownSimpleServer v1.1.0.1
+ * HmMarkdownSimpleServer v1.2.0.1
  *
  * Copyright (c) 2023 Akitsugu Komiyama
  * under the MIT License
