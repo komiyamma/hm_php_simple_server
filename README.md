@@ -1,5 +1,5 @@
 # HmPHPSimpleServer
-秀丸エディタ - ブラウザ枠用 - 簡易サーバー
+秀丸エディタ - ブラウザ枠用 - 簡易http/phpサーバー
 
 ## ダウンロード対象
 - https://github.com/komiyamma/hm_php_simple_server/releases  
