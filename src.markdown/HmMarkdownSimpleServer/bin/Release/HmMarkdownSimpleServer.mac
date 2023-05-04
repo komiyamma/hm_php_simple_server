@@ -126,9 +126,38 @@ CREATE_FETCH_SERVER_OBJECT:
     setcomdetachmethod #FETCH_SERVER, "OnReleaseObject";
 
 
+FIND_MARKDOWN_FETCH_SERVER_AVILABLE_PORT:
+
+    #BGN_PORT = 7101;                     // サーバー用に利用する 最低のポート番号
+    #END_PORT = 7200;                     // サーバー用に利用する 最大のポート番号。 最低でも50ポート幅は用意すること。
+
+    // 全秀丸共有で#MARKDOWN_HOSTPORTを持つ。１つずつインクリメントで「全秀丸プロセス」でユニークとし、まずは被りにくいようにする
+    $STR_PORT = getstaticvariable("HmMarkdownFetchServerLastPort", 1);
+
+    // 初回起動時は、#BGN_PORT を「かぶりにくい番号」とする。
+    if ($STR_PORT == "") {
+
+        #MARKDOWN_HOSTPORT = #BGN_PORT;
+
+    // 最後に起動した際のポート番号に1足したものを「被りにくい番号」とする。
+    } else {
+        #MARKDOWN_HOSTPORT = val($STR_PORT);
+
+        // 予め１ずつずらしているのは、「本当に使われていない」という判定はどうあってもOSに訪ねたとしても完璧にはならないため、
+        // 最低１ずつずらしていくことで、次に行う「本当に使われていないPort番号」の探索が「万が一」誤っていたとしても、Port番号が変わることにより問題なく動作する可能性が十分あるため。
+        #MARKDOWN_HOSTPORT = #MARKDOWN_HOSTPORT + 1;
+
+        // 指定のPort範囲外に溢れていたら、一番小さなPortから
+        if (#MARKDOWN_HOSTPORT < #BGN_PORT || #END_PORT-20 < #MARKDOWN_HOSTPORT) {
+            #MARKDOWN_HOSTPORT = #BGN_PORT;
+        }
+    }
+
+    setstaticvariable "HmMarkdownFetchServerLastPort", str(#MARKDOWN_HOSTPORT), 1;
+
 LAUNCH_MARKDOWN_FETCH_SERVER:
 
-    #PORT = member(#FETCH_SERVER, "Start", 7201, 7300);
+    #PORT = member(#FETCH_SERVER, "Start",  #MARKDOWN_HOSTPORT, #END_PORT);
 
     if (#PORT == 0) {
         // エラーメッセージは、COMのdllの方からアウトプット枠にすでに出てる。

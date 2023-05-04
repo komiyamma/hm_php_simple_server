@@ -28,7 +28,7 @@ SET_PHP_SERVER_INFO:
                                            // 「execmacroで引数付き」やブックマークの「mac:"****\\HmPHPSimpleServer.mac" "C:\test"」といったように使用することが出来る。
 
     #BGN_PORT = 7201;                     // サーバー用に利用する 最低のポート番号
-    #END_PORT = 7300;                     // サーバー用に利用する 最大のポート番号
+    #END_PORT = 7400;                     // サーバー用に利用する 最大のポート番号
 
 
 RELEASE_OLD_PHP_SERVER_OBJECT:
@@ -94,7 +94,7 @@ FIND_PHP_SERVER_AVILABLE_PORT:
         #PHP_HOSTPORT = #PHP_HOSTPORT + 1;
 
         // 指定のPort範囲外に溢れていたら、一番小さなPortから
-        if (#PHP_HOSTPORT < #BGN_PORT || #END_PORT < #PHP_HOSTPORT) {
+        if (#PHP_HOSTPORT < #BGN_PORT || #END_PORT-20 < #PHP_HOSTPORT) {
             #PHP_HOSTPORT = #BGN_PORT;
         }
     }
