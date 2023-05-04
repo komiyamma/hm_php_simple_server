@@ -1,1 +1,0 @@
-test.php を秀丸で開いて、HmPHPSimpleDaemon.mac を実行
