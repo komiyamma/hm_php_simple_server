@@ -7,6 +7,7 @@
  
 hidemaruversion "9.22.14";
 
+
 SET_PHP_SERVER_INFO:
 
     $PHP_FULLPATH = @"C:\usr\php\php.exe"; // 手元にある php.exe へのフルパスを指定。
@@ -120,6 +121,4 @@ SHOW_HTTP_URL_IN_BROWSER_PANE:
     showbrowserpane 1, #TARGET_BROWSER_PANE;
     // 対応するポートでPHPサーバーが立っているので、そのURLをブラウザ枠に表示。
     setbrowserpaneurl sprintf("http://%s:%d/%s", $PHP_HOSTNAME, #PHP_HOSTPORT, $RELATIVE_URI), #TARGET_BROWSER_PANE;
-
-    endmacro;
 
