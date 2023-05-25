@@ -261,8 +261,11 @@ namespace HmPHPSimpleServer
                         // Hm.OutputPane.Output("refreshbrowserpane");
 
                         // リフレッシュする
-                        Hm.Macro.Exec.Eval($"refreshbrowserpane {targetBrowserPane};");
-                        isMustReflesh = false;
+                        var ret = Hm.Macro.Exec.Eval($"refreshbrowserpane {targetBrowserPane}; endmacro \"complete\"; ");
+                        // if (ret.Message == "complete")
+                        {
+                            isMustReflesh = false;
+                        }
                     }
                 }
             }
