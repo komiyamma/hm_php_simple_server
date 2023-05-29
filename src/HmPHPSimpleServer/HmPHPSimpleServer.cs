@@ -131,11 +131,7 @@ namespace HmPHPSimpleServer
                 Regex regex = new Regex(notifyFolderChangeFilter);
                 if (regex.IsMatch(e.FullPath))
                 {
-                    Hm.OutputPane.Output("Match");
                     isMustReflesh = true;
-                } else
-                {
-                    Hm.OutputPane.Output("noMatch");
                 }
             }
         }
