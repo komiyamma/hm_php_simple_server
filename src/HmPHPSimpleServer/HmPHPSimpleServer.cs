@@ -28,6 +28,7 @@ namespace HmPHPSimpleServer
 
         System.IO.FileSystemWatcher watcher;
         int targetBrowserPane = 2;
+        int notifyFileWatcher = 1;
         string notifyFolderChangeFilter = "";
 
         // PHPデーモンのスタート
@@ -50,6 +51,7 @@ namespace HmPHPSimpleServer
 
                 this.targetBrowserPane = (int)(dynamic)Hm.Macro.Var["#TARGET_BROWSER_PANE"];
                 this.notifyFolderChangeFilter = (string)Hm.Macro.Var["$NOTIFY_FOLDER_CHANGE_FILTER"];
+                this.notifyFileWatcher = (int)(dynamic)Hm.Macro.Var["#NOTIFY_FILE_WATCHER"];
                 this.phpHostName = hostName;
                 this.phpHostPort = hostPort;
                 this.isMustReflesh = false;
@@ -77,41 +79,48 @@ namespace HmPHPSimpleServer
 
         private void CreateFileWatcher()
         {
-            string filepath = Hm.Edit.FilePath;
-            if (!String.IsNullOrEmpty(filepath))
+            if (notifyFileWatcher == 0)
             {
-                if (!String.IsNullOrEmpty(notifyFolderChangeFilter))
-                {
-                    watcher = new System.IO.FileSystemWatcher(phpServerDocumentFolder);
-
-                    //サブディレクトリは監視しない
-                    watcher.IncludeSubdirectories = true;
-
-                    //監視するフィールドの設定
-                    watcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName );
-
-                    watcher.Changed += watcher_Changed_WithFilter;
-                    watcher.Deleted += watcher_Changed_WithFilter;
-                    watcher.Created += watcher_Changed_WithFilter;
-                    watcher.Renamed += watcher_Changed_WithFilter;
-                }
-                else
-                {
-                    var directory = Path.GetDirectoryName(filepath);
-                    var filename = Path.GetFileName(filepath);
-
-                    watcher = new System.IO.FileSystemWatcher(directory, filename);
-
-                    //監視するフィールドの設定
-                    watcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.Size);
-
-                    watcher.Changed += watcher_Changed;
-                }
-
-
-                //監視を開始する
-                watcher.EnableRaisingEvents = true;
+                return;
             }
+
+            string filepath = Hm.Edit.FilePath;
+            if (String.IsNullOrEmpty(filepath))
+            {
+                return;
+            }
+
+            if (!String.IsNullOrEmpty(notifyFolderChangeFilter))
+            {
+                watcher = new System.IO.FileSystemWatcher(phpServerDocumentFolder);
+
+                //サブディレクトリは監視しない
+                watcher.IncludeSubdirectories = true;
+
+                //監視するフィールドの設定
+                watcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName );
+
+                watcher.Changed += watcher_Changed_WithFilter;
+                watcher.Deleted += watcher_Changed_WithFilter;
+                watcher.Created += watcher_Changed_WithFilter;
+                watcher.Renamed += watcher_Changed_WithFilter;
+            }
+            else
+            {
+                var directory = Path.GetDirectoryName(filepath);
+                var filename = Path.GetFileName(filepath);
+
+                watcher = new System.IO.FileSystemWatcher(directory, filename);
+
+                //監視するフィールドの設定
+                watcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.Size);
+
+                watcher.Changed += watcher_Changed;
+            }
+
+
+            //監視を開始する
+            watcher.EnableRaisingEvents = true;
         }
 
         private void DestroyFileWatcher()

@@ -13,8 +13,9 @@ SET_PHP_SERVER_SETTINGS_INFO:
     $PHP_FULLPATH = @"C:\usr\php\php.exe"; // 手元にある php.exe へのフルパスを指定。
                                            // PCに入っていなければ、「https://windows.php.net/download」の「Zip」とあるものならどれでもOK (少々古いPHPでも問題はない)
 
+    #NOTIFY_FILE_WATCHER = 1;              // ファイル更新等のファイル監視による自動更新を有効にする。
 
-    $NOTIFY_FOLDER_CHANGE_FILTER = "\.php|\.html|\.htm|\.css|\.js|\.png|\.jpg|\.jpeg";
+    // $NOTIFY_FOLDER_CHANGE_FILTER = "\.php|\.html|\.htm|\.css|\.js|\.png|\.jpg|\.jpeg";
                                            // 編集しているファイルのみならず、httpのドキュメントルートフォルダ以下(サブフォルダ含む)の
                                            // 「指定のファイル郡が変更・追加された時、自動的にリロード」するかを決める。
                                            // .phpが実行されると新しくファイルを書き換えるような実装では、無限リロードになりかねないので扱いに注意すること。
@@ -32,7 +33,7 @@ SET_PHP_SERVER_READONLY_INFO:
     #TARGET_BROWSER_PANE = 2;              // 個別ブラウザ枠:2  共用ブラウザ枠:1   ※原則的には個別ブラウザ枠。
 
     #BGN_PORT = 7201;                      // サーバー用に利用する 最低のポート番号。下の番号と合わせて編集しても良いが、原則編集する必要はないハズ。
-    #END_PORT = 7400;                      // サーバー用に利用する 最大のポート番号。下の番号と合わせて編集しても良いが、原則編集する必要はないハズ。
+    #END_PORT = 7400;                      // サーバー用に利用する 最大のポート番号。上の番号と合わせて編集しても良いが、原則編集する必要はないハズ。
 
 
 
