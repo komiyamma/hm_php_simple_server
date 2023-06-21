@@ -1,6 +1,6 @@
 # HmPHPSimpleServer
 
-![HmPHPSimpleServer v1.2.0](https://img.shields.io/badge/HmPHPSimpleServer-v1.2.0-6479ff.svg)
+![HmPHPSimpleServer v1.3.0](https://img.shields.io/badge/HmPHPSimpleServer-v1.3.0-6479ff.svg)
 [![MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 ![Hidemaru 9.22](https://img.shields.io/badge/Hidemaru-v9.22-6479ff.svg)
 ![.NET 4.72](https://img.shields.io/badge/.NET-4.72-6479ff.svg)
