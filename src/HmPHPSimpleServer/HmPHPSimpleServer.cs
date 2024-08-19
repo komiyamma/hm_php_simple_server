@@ -258,14 +258,16 @@ namespace HmPHPSimpleServer
         // これによりマクロにより、このクラスのインスタンスがクリアされるとともに、新たなファイル名、新たなポート番号を使って、PHPサーバーが再起動される。
         private async Task<bool> TickMethodAsync(CancellationToken ct)
         {
-            ct.ThrowIfCancellationRequested();
-
             try
             {
                 while (!ct.IsCancellationRequested)
                 {
                     for (int i = 0; i < 3; i++)
                     {
+                        if (ct.IsCancellationRequested)
+                        {
+                            return true;
+                        }
                         await DelayMethod(ct);
                     }
 
@@ -327,7 +329,7 @@ namespace HmPHPSimpleServer
 
         private static async Task<CancellationToken> DelayMethod(CancellationToken ct)
         {
-            await Task.Delay(150);
+            await Task.Delay(150, ct);
             if (ct.IsCancellationRequested)
             {
                 // Clean up here, then...
