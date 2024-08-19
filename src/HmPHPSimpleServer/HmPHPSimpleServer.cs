@@ -23,7 +23,7 @@ namespace HmPHPSimpleServer
         string phpHostName;
         int phpHostPort;
 
-        Task<string> task;
+        Task<bool> task;
         CancellationTokenSource cts;
 
         System.IO.FileSystemWatcher watcher;
@@ -256,61 +256,73 @@ namespace HmPHPSimpleServer
 
         // ファイル名が変化したことを検知したら、HmPHPSimpleServer.mac(自分の呼び出し元)を改めて実行する。
         // これによりマクロにより、このクラスのインスタンスがクリアされるとともに、新たなファイル名、新たなポート番号を使って、PHPサーバーが再起動される。
-        private async Task<string> TickMethodAsync(CancellationToken ct)
+        private async Task<bool> TickMethodAsync(CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
 
-            while (true)
+            try
             {
-                for (int i = 0; i < 3; i++)
+                while (!ct.IsCancellationRequested)
                 {
-                    await DelayMethod(ct);
-                }
-
-                string currFileFullPath = Hm.Edit.FilePath;
-
-                if (String.IsNullOrEmpty(currFileFullPath))
-                {
-
-                    string command = $"setbrowserpaneurl \"about:blank\", {targetBrowserPane};";
-
-                    isMustReflesh = false;
-                    // 空白のを出して終わる
-                    Hm.Macro.Exec.Eval(command);
-                    Destroy();
-                }
-
-                // ファイル名が変化したら、改めて自分自身のマクロを実行する。
-                if (prevFileFullPath != currFileFullPath)
-                {
-                    prevFileFullPath = currFileFullPath;
-
-                    // 同期マクロ実行中ではない
-                    if (!Hm.Macro.IsExecuting && !String.IsNullOrEmpty(currFileFullPath))
+                    for (int i = 0; i < 3; i++)
                     {
-                        isMustReflesh = false;
-
-                        // 自分自身を実行
-                        Hm.Macro.Exec.File(currMacroFilePath);
+                        await DelayMethod(ct);
                     }
-                }
 
-                if (isMustReflesh)
-                {
-                    // 同期マクロ実行中ではない
-                    if (!Hm.Macro.IsExecuting && !String.IsNullOrEmpty(currFileFullPath))
+                    string currFileFullPath = Hm.Edit.FilePath;
+
+                    if (String.IsNullOrEmpty(currFileFullPath))
                     {
-                        // Hm.OutputPane.Output("refreshbrowserpane");
 
-                        // リフレッシュする
-                        var ret = Hm.Macro.Exec.Eval($"refreshbrowserpane {targetBrowserPane}; endmacro \"complete\"; ");
-                        // if (ret.Message == "complete")
+                        string command = $"setbrowserpaneurl \"about:blank\", {targetBrowserPane};";
+
+                        isMustReflesh = false;
+                        // 空白のを出して終わる
+                        Hm.Macro.Exec.Eval(command);
+                        Destroy();
+
+                        return true;
+                    }
+
+                    // ファイル名が変化したら、改めて自分自身のマクロを実行する。
+                    if (prevFileFullPath != currFileFullPath)
+                    {
+                        prevFileFullPath = currFileFullPath;
+
+                        // 同期マクロ実行中ではない
+                        if (!Hm.Macro.IsExecuting && !String.IsNullOrEmpty(currFileFullPath))
                         {
                             isMustReflesh = false;
+
+                            // 自分自身を実行
+                            Hm.Macro.Exec.File(currMacroFilePath);
+
+                            return true;
+                        }
+                    }
+
+                    if (isMustReflesh)
+                    {
+                        // 同期マクロ実行中ではない
+                        if (!Hm.Macro.IsExecuting && !String.IsNullOrEmpty(currFileFullPath))
+                        {
+                            // Hm.OutputPane.Output("refreshbrowserpane");
+
+                            // リフレッシュする
+                            var ret = Hm.Macro.Exec.Eval($"refreshbrowserpane {targetBrowserPane}; endmacro \"complete\"; ");
+                            // if (ret.Message == "complete")
+                            {
+                                isMustReflesh = false;
+                            }
                         }
                     }
                 }
+
             }
+            catch (Exception e)
+            {
+            }
+            return true;
         }
 
         private static async Task<CancellationToken> DelayMethod(CancellationToken ct)
@@ -366,6 +378,19 @@ namespace HmPHPSimpleServer
                 if (phpProcess != null)
                 {
                     phpProcess.Kill();
+                }
+
+                return 1;
+            }
+            catch (Exception)
+            {
+
+            }
+            try
+            {
+                if (task != null)
+                {
+                    task.Dispose();
                 }
 
                 return 1;
