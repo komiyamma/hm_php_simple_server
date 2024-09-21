@@ -381,8 +381,6 @@ namespace HmPHPSimpleServer
                 {
                     phpProcess.Kill();
                 }
-
-                return 1;
             }
             catch (Exception)
             {
@@ -394,8 +392,6 @@ namespace HmPHPSimpleServer
                 {
                     task.Dispose();
                 }
-
-                return 1;
             }
             catch (Exception)
             {
