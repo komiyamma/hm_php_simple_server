@@ -188,7 +188,7 @@ namespace HmPHPSimpleServer
                     return;
                 }
 
-                Regex regex = new Regex(notifyFolderChangeFilter);
+                Regex regex = new Regex(notifyFolderChangeFilter, RegexOptions.IgnoreCase);
                 if (regex.IsMatch(e.FullPath))
                 {
                     isMustReflesh = true;
