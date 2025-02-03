@@ -156,7 +156,7 @@ namespace HmPHPSimpleServer
                 var parent = new DirectoryInfo(Path.GetDirectoryName(path));
                 while (parent != null)
                 {
-                    if (parent.FullName == phpServerDocumentFolder)
+                    if (parent.FullName == watcher.Path)
                     {
                         break;
                     }
