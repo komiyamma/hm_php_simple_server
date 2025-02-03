@@ -98,7 +98,7 @@ namespace HmPHPSimpleServer
                 watcher.IncludeSubdirectories = true;
 
                 //監視するフィールドの設定
-                watcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName );
+                watcher.NotifyFilter = (NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName);
 
                 watcher.Changed += watcher_Changed_WithFilter;
                 watcher.Deleted += watcher_Changed_WithFilter;
@@ -133,23 +133,78 @@ namespace HmPHPSimpleServer
 
         bool isMustReflesh = false;
 
+        private static bool IsUnderHiddenDirectory(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                {
+                    var fileInfo = new FileInfo(path);
+                    return (fileInfo.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden;
+                }
+
+                else if (Directory.Exists(path))
+                {
+                    var dirInfo = new DirectoryInfo(path);
+                    return (dirInfo.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden;
+                }
+
+            }
+            catch (Exception)
+            {
+            }
+
+            return false;
+        }
+
         private void watcher_Changed_WithFilter(object sender, FileSystemEventArgs e)
         {
-            if (!Hm.Macro.IsExecuting)
+            try
             {
+                if (e.FullPath.Contains("\\.git\\") || e.FullPath.EndsWith("\\.git"))
+                {
+                    return;
+                }
+
+                if (IsUnderHiddenDirectory(e.FullPath))
+                {
+                    return;
+                }
+
                 Regex regex = new Regex(notifyFolderChangeFilter);
                 if (regex.IsMatch(e.FullPath))
                 {
+                    Hm.OutputPane.Output("Go");
                     isMustReflesh = true;
                 }
+                else
+                {
+                }
+            }
+            catch (Exception ex)
+            {
             }
         }
 
         private void watcher_Changed(object sender, FileSystemEventArgs e)
         {
-            if (!Hm.Macro.IsExecuting)
+            try
             {
+                if (e.FullPath.Contains("\\.git\\") || e.FullPath.EndsWith("\\.git"))
+                {
+                    return;
+                }
+
+                if (IsUnderHiddenDirectory(e.FullPath))
+                {
+                    return;
+                }
+
+                Hm.OutputPane.Output("Go");
                 isMustReflesh = true;
+            }
+            catch (Exception ex)
+            {
             }
         }
 
@@ -219,7 +274,8 @@ namespace HmPHPSimpleServer
                 // phpProcess.OutputDataReceived += Proc_OutputDataReceived;
 
                 phpProcess.Start();
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Hm.OutputPane.Output("\"" + phpExePath + "\"" + ":\r\n" + ex.ToString() + "\r\n");
             }
