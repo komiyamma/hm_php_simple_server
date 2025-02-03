@@ -133,7 +133,7 @@ namespace HmPHPSimpleServer
 
         bool isMustReflesh = false;
 
-        private static bool IsUnderHiddenDirectory(string path)
+        private bool IsUnderHiddenDirectory(string path)
         {
             try
             {
@@ -146,9 +146,10 @@ namespace HmPHPSimpleServer
                 else if (Directory.Exists(path))
                 {
                     var dirInfo = new DirectoryInfo(path);
-                    return (dirInfo.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden;
+                    if ((dirInfo.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden) {
+                        return true;
+                    }
                 }
-
             }
             catch (Exception)
             {
@@ -174,7 +175,6 @@ namespace HmPHPSimpleServer
                 Regex regex = new Regex(notifyFolderChangeFilter);
                 if (regex.IsMatch(e.FullPath))
                 {
-                    Hm.OutputPane.Output("Go");
                     isMustReflesh = true;
                 }
                 else
@@ -200,7 +200,6 @@ namespace HmPHPSimpleServer
                     return;
                 }
 
-                Hm.OutputPane.Output("Go");
                 isMustReflesh = true;
             }
             catch (Exception ex)
