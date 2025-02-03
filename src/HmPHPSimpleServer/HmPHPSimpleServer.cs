@@ -140,15 +140,31 @@ namespace HmPHPSimpleServer
                 if (File.Exists(path))
                 {
                     var fileInfo = new FileInfo(path);
-                    return (fileInfo.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden;
+                    if ((fileInfo.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden ) {
+                        return true;
+                    }
                 }
 
-                else if (Directory.Exists(path))
+                if (Directory.Exists(path))
                 {
                     var dirInfo = new DirectoryInfo(path);
                     if ((dirInfo.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden) {
                         return true;
                     }
+                }
+
+                var parent = new DirectoryInfo(Path.GetDirectoryName(path));
+                while (parent != null)
+                {
+                    if (parent.FullName == phpServerDocumentFolder)
+                    {
+                        break;
+                    }
+                    if ((parent.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden)
+                    {
+                        return true;
+                    }
+                    parent = parent.Parent;
                 }
             }
             catch (Exception)
