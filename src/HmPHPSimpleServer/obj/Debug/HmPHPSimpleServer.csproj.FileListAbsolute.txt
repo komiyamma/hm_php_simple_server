@@ -1,6 +1,0 @@
-G:\repogitory\hm_php_simple_server\src\HmPHPSimpleServer\bin\Debug\HmPHPSimpleServer.dll
-G:\repogitory\hm_php_simple_server\src\HmPHPSimpleServer\bin\Debug\HmPHPSimpleServer.pdb
-G:\repogitory\hm_php_simple_server\src\HmPHPSimpleServer\obj\Debug\HmPHPSimpleServer.csproj.AssemblyReference.cache
-G:\repogitory\hm_php_simple_server\src\HmPHPSimpleServer\obj\Debug\HmPHPSimpleServer.csproj.CoreCompileInputs.cache
-G:\repogitory\hm_php_simple_server\src\HmPHPSimpleServer\obj\Debug\HmPHPSimpleServer.dll
-G:\repogitory\hm_php_simple_server\src\HmPHPSimpleServer\obj\Debug\HmPHPSimpleServer.pdb

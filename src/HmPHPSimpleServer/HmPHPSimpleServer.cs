@@ -204,6 +204,11 @@ namespace HmPHPSimpleServer
 
         private void watcher_Changed(object sender, FileSystemEventArgs e)
         {
+            // このフラグをtrueにするかどうかで調べてるんだkら、trueなら調べる必要性自体がない
+            if (isMustReflesh)
+            {
+                return;
+            }
             try
             {
                 if (e.FullPath.Contains("\\.git\\") || e.FullPath.EndsWith("\\.git"))
