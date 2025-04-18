@@ -405,7 +405,17 @@ namespace HmPHPSimpleServer
 
         private static async Task<CancellationToken> DelayMethod(CancellationToken ct)
         {
-            await Task.Delay(150, ct);
+            int currentWindowBackGround = Hm.Edit.InputStates & 0x00000800;
+            // 自分のウィンドウはタブモードでかつ裏に隠れているか？
+            if (currentWindowBackGround > 0)
+            {
+                await Task.Delay(700, ct);
+            }
+            else
+            {
+                await Task.Delay(150, ct);
+            }
+
             if (ct.IsCancellationRequested)
             {
                 // Clean up here, then...

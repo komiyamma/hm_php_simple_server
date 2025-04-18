@@ -1,6 +1,6 @@
 /*
- * HmNetCOM ver 2.079
- * Copyright (C) 2021-2022 Akitsugu Komiyama
+ * HmNetCOM ver 2.087
+ * Copyright (C) 2021-2024 Akitsugu Komiyama
  * under the MIT License
  **/
 
@@ -18,7 +18,7 @@ using System.Runtime.InteropServices;
 
 
 /*
- * Copyright (C) 2021-2022 Akitsugu Komiyama
+ * Copyright (C) 2021-2024 Akitsugu Komiyama
  * under the MIT License
  **/
 
@@ -170,6 +170,9 @@ namespace HmNetCOM
         private delegate int TEvalMacro([MarshalAs(UnmanagedType.LPWStr)] String pwsz);
 
         [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+        private delegate int TDebugInfo([MarshalAs(UnmanagedType.LPWStr)] String pwsz);
+
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)]
         private delegate int TCheckQueueStatus();
 
         [UnmanagedFunctionPointer(CallingConvention.Winapi)]
@@ -184,6 +187,9 @@ namespace HmNetCOM
         [UnmanagedFunctionPointer(CallingConvention.Winapi)]
         private delegate int TSetStaticVariable([MarshalAs(UnmanagedType.LPWStr)] String pwszSymbolName, [MarshalAs(UnmanagedType.LPWStr)] String pwszValue, int sharedMemoryFlag);
 
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+        private delegate int TGetInputStates();
+
         // 秀丸本体から出ている関数群
         private static TGetCurrentWindowHandle pGetCurrentWindowHandle;
         private static TGetTotalTextUnicode pGetTotalTextUnicode;
@@ -192,11 +198,13 @@ namespace HmNetCOM
         private static TGetCursorPosUnicode pGetCursorPosUnicode;
         private static TGetCursorPosUnicodeFromMousePos pGetCursorPosUnicodeFromMousePos;
         private static TEvalMacro pEvalMacro;
+        private static TDebugInfo pDebugInfo;
         private static TCheckQueueStatus pCheckQueueStatus;
         private static TAnalyzeEncoding pAnalyzeEncoding;
         private static TLoadFileUnicode pLoadFileUnicode;
         private static TGetStaticVariable pGetStaticVariable;
         private static TSetStaticVariable pSetStaticVariable;
+        private static TGetInputStates pGetInputStates;
 
         // 秀丸本体のexeを指すモジュールハンドル
         private static UnManagedDll hmExeHandle;
@@ -225,10 +233,18 @@ namespace HmNetCOM
                         pAnalyzeEncoding = hmExeHandle.GetProcDelegate<TAnalyzeEncoding>("Hidemaru_AnalyzeEncoding");
                         pLoadFileUnicode = hmExeHandle.GetProcDelegate<TLoadFileUnicode>("Hidemaru_LoadFileUnicode");
                     }
+                    if (Version >= 898)
+                    {
+                        pDebugInfo = hmExeHandle.GetProcDelegate<TDebugInfo>("Hidemaru_DebugInfo");
+                    }
                     if (Version >= 915)
                     {
                         pGetStaticVariable = hmExeHandle.GetProcDelegate<TGetStaticVariable>("Hidemaru_GetStaticVariable");
                         pSetStaticVariable = hmExeHandle.GetProcDelegate<TSetStaticVariable>("Hidemaru_SetStaticVariable");
+                    }
+                    if (Version >= 919)
+                    {
+                        pGetInputStates = hmExeHandle.GetProcDelegate<TGetInputStates>("Hidemaru_GetInputStates");
                     }
 
                 }
@@ -356,7 +372,7 @@ namespace HmNetCOM
 
 
 /*
- * Copyright (C) 2021-2022 Akitsugu Komiyama
+ * Copyright (C) 2021-2024 Akitsugu Komiyama
  * under the MIT License
  **/
 
@@ -367,6 +383,36 @@ namespace HmNetCOM
     {
         public static partial class Macro
         {
+            /// <summary>
+            /// マクロの debuginfo と同じ関数だが、マクロ実行中以外でも扱える。
+            /// 必要かどうかは微妙なところだが、マクロの debuginfo(0)～debuginfo(2) など、表示設定の反映の恩恵を受けられる点が異なる
+            /// マクロの debuginfo とは異なり、マクロの実行が終えたからといって、自動的に debuginfo(0)にリセットされたりはしない。
+            /// よって非表示にするためには、明示的に debuginfo(0)を、マクロ側もしくはプログラム側から明示的に実行する必要がある。
+            /// </summary>
+            /// <returns>成功したときは0以外、失敗したときは0を返す。</returns>
+            public static int DebugInfo(params Object[] messages)
+            {
+                if (Version < 898)
+                {
+                    throw new MissingMethodException("Hidemaru_Macro_DebugInfo_Exception");
+                }
+                if (pDebugInfo == null)
+                {
+                    throw new MissingMethodException("Hidemaru_Macro_DebugInfo_Exception");
+                }
+                List<String> list = new List<String>();
+                foreach (var exp in messages)
+                {
+                    var mixedString = exp.ToString();
+                    string unifiedString = mixedString.Replace("\r\n", "\n").Replace("\n", "\r\n");
+                    list.Add(unifiedString);
+                }
+
+                String joind = String.Join(" ", list);
+
+                return pDebugInfo(joind);
+            }
+
             /// <summary>
             /// マクロを実行中か否かを判定する
             /// </summary>
@@ -417,7 +463,7 @@ namespace HmNetCOM
                 /// <param name = "name">変数名</param>
                 /// <param name = "sharedflag">共有フラグ</param>
                 /// <returns>対象の静的変数名(name)に格納されている文字列</returns>
-                public static string Get(string name, int sharedflag)
+                public string Get(string name, int sharedflag)
                 {
                     return GetStaticVariable(name, sharedflag);
                 }
@@ -429,7 +475,7 @@ namespace HmNetCOM
                 /// <param name = "value">設定する値(文字列)</param>
                 /// <param name = "sharedflag">共有フラグ</param>
                 /// <returns>取得に成功すれば真、失敗すれば偽が返る</returns>
-                public static bool Set(string name, string value, int sharedflag)
+                public bool Set(string name, string value, int sharedflag)
                 {
                     var ret = SetStaticVariable(name, value, sharedflag);
                     if (ret != 0)
@@ -676,7 +722,7 @@ namespace HmNetCOM
 
 
 /*
- * Copyright (C) 2021-2022 Akitsugu Komiyama
+ * Copyright (C) 2021-2024 Akitsugu Komiyama
  * under the MIT License
  **/
 
@@ -730,10 +776,19 @@ namespace HmNetCOM
                 }
                 set
                 {
-                    SetTotalText(value);
+                    // 935.β6以降は、settotaltext() が実装された。
+                    if (Version >= 935.06)
+                    {
+                        SetTotalText2(value);
+                    }
+                    else
+                    {
+                        SetTotalText(value);
+                    }
                 }
             }
             static partial void SetTotalText(string text);
+            static partial void SetTotalText2(string text);
 
 
             /// <summary>
@@ -985,6 +1040,44 @@ namespace HmNetCOM
                 }
             }
 
+            /// <summary>
+            /// <para>各種の入力ができるかどうかを判断するための状態を表します。（V9.19以降）</para>
+            /// <para>以下の値の論理和です。</para>
+            /// <para>0x00000002 ウィンドウ移動/サイズ変更中</para>
+            /// <para>0x00000004 メニュー操作中</para>
+            /// <para>0x00000008 システムメニュー操作中</para>
+            /// <para>0x00000010 ポップアップメニュー操作中</para>
+            /// <para>0x00000100 IME入力中</para>
+            /// <para>0x00000200 何らかのダイアログ表示中</para>
+            /// <para>0x00000400 ウィンドウがDisable状態</para>
+            /// <para>0x00000800 非アクティブなタブまたは非表示のウィンドウ</para>
+            /// <para>0x00001000 検索ダイアログの疑似モードレス状態</para>
+            /// <para>0x00002000 なめらかスクロール中</para>
+            /// <para>0x00004000 中ボタンによるオートスクロール中</para>
+            /// <para>0x00008000 キーやマウスの操作直後(100ms 以内)</para>
+            /// <para>0x00010000 何かマウスのボタンを押している</para>
+            /// <para>0x00020000 マウスキャプチャ状態(ドラッグ状態)</para>
+            /// <para>0x00040000 Hidemaru_CheckQueueStatus相当</para>
+            /// </summary>
+            /// </summary>
+            /// <returns>一回の操作でも数カウント上がる。32bitの値を超えると一周する。初期値は1以上。</returns>
+            public static int InputStates
+            {
+                get
+                {
+                    if (Version < 919.11)
+                    {
+                        throw new MissingMethodException("Hidemaru_Edit_InputStates");
+                    }
+                    if (pGetInputStates == null)
+                    {
+                        throw new MissingMethodException("Hidemaru_Edit_InputStates");
+                    }
+
+                    return pGetInputStates();
+                }
+            }
+
         }
     }
 }
@@ -1026,6 +1119,34 @@ namespace HmNetCOM
                     throw result.Error;
                 }
             }
+
+            static partial void SetTotalText2(string text)
+            {
+                string myDllFullPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                string myTargetDllFullPath = HmMacroCOMVar.GetMyTargetDllFullPath(myDllFullPath);
+                string myTargetClass = HmMacroCOMVar.GetMyTargetClass(myDllFullPath);
+                HmMacroCOMVar.SetMacroVar(text);
+                string cmd = $@"
+                #_COM_NET_PINVOKE_MACRO_VAR = createobject(@""{myTargetDllFullPath}"", @""{myTargetClass}"" );
+                settotaltext member(#_COM_NET_PINVOKE_MACRO_VAR, ""DllToMacro"" );
+                releaseobject(#_COM_NET_PINVOKE_MACRO_VAR);
+                ";
+                Macro.IResult result = null;
+                if (Macro.IsExecuting)
+                {
+                    result = Hm.Macro.Eval(cmd);
+                } else
+                {
+                    result = Hm.Macro.Exec.Eval(cmd);
+                }
+
+                HmMacroCOMVar.ClearVar();
+                if (result.Error != null)
+                {
+                    throw result.Error;
+                }
+            }
+
 
             static partial void SetSelectedText(string text)
             {
@@ -1121,7 +1242,7 @@ namespace HmNetCOM
 
 
 /*
- * Copyright (C) 2021-2022 Akitsugu Komiyama
+ * Copyright (C) 2021-2024 Akitsugu Komiyama
  * under the MIT License
  **/
 
@@ -1502,7 +1623,7 @@ namespace HmNetCOM
 }
 
 /*
- * Copyright (C) 2021-2022 Akitsugu Komiyama
+ * Copyright (C) 2021-2024 Akitsugu Komiyama
  * under the MIT License
  **/
 
@@ -1622,7 +1743,7 @@ namespace HmNetCOM
 }
 
 /*
- * Copyright (C) 2021-2022 Akitsugu Komiyama
+ * Copyright (C) 2021-2024 Akitsugu Komiyama
  * under the MIT License
  **/
 
