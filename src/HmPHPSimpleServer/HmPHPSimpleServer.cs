@@ -362,6 +362,12 @@ namespace HmPHPSimpleServer
                         return true;
                     }
 
+                    // 更新するべきではない条歌いであれば、何もしない
+                    if (isNotAllowInputStates())
+                    {
+                        continue;
+                    }
+
                     // ファイル名が変化したら、改めて自分自身のマクロを実行する。
                     if (prevFileFullPath != currFileFullPath)
                     {
@@ -403,18 +409,38 @@ namespace HmPHPSimpleServer
             return true;
         }
 
+        private bool isNotAllowInputStates()
+        {
+            /*
+                ○ 0x00000002 ウィンドウ移動/サイズ変更中
+                ○ 0x00000004 メニュー操作中
+                ○ 0x00000008 システムメニュー操作中
+                ○ 0x00000010 ポップアップメニュー操作中
+                ○ 0x00000100 IME入力中
+                × 0x00000200 何らかのダイアログ表示中
+                × 0x00000400 ウィンドウがDisable状態
+                × 0x00000800 非アクティブなタブまたは非表示のウィンドウ
+                × 0x00001000 検索ダイアログの疑似モードレス状態
+                ○ 0x00002000 なめらかスクロール中
+                ○ 0x00004000 中ボタンによるオートスクロール中
+                ○ 0x00008000 キーやマウスの操作直後
+                ○ 0x00010000 何かマウスのボタンを押している
+                ◯ 0x00020000 マウスキャプチャ状態(ドラッグ状態)
+                ◯ 0x00040000 Hidemaru_CheckQueueStatus相当
+                × 0x00080000 デスクトップ復元中（V9.46以降）
+            */
+
+            int states = Hm.Edit.InputStates;
+
+            const int notAllowedMask =
+                  0x00000200 | 0x00000400 | 0x00000800 | 0x00001000 | 0x00080000;
+
+            return (states & notAllowedMask) != 0;
+        }
+
         private static async Task<CancellationToken> DelayMethod(CancellationToken ct)
         {
-            int currentWindowBackGround = Hm.Edit.InputStates & 0x00000800;
-            // 自分のウィンドウはタブモードでかつ裏に隠れているか？
-            if (currentWindowBackGround > 0)
-            {
-                await Task.Delay(700, ct);
-            }
-            else
-            {
-                await Task.Delay(150, ct);
-            }
+            await Task.Delay(150, ct);
 
             if (ct.IsCancellationRequested)
             {
