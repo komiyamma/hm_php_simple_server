@@ -9,7 +9,7 @@
 
 秀丸エディタのブラウザ枠機能を利用して、PHPやHTMLファイルのプレビューをリアルタイムで行うための簡易HTTPサーバーです。
 
-[作者による紹介ページ](https://秀丸マクロ.net/?page=nobu_tool_hm_php_simple_server)
+[解説ページ](https://秀丸マクロ.net/?page=nobu_tool_hm_php_simple_server)
 
 ## 主な機能
 
